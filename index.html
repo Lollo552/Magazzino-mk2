@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Magazzino Tabaccheria MK2</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+<script>window.addEventListener("error",function(){},true);</script>
+<style>
+:root{--ink:#0B1B33;--ink2:#12243f;--line:#2b3f61;--paper:#F7F5F0;--amber:#F2B705;--good:#27A567;--bad:#D6453D;--mute:#8FA2BF}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--paper);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.35}
+.num{font-variant-numeric:tabular-nums}
+header{padding:13px 16px 11px;border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:17px;font-weight:650;letter-spacing:-.01em}
+header p{margin:2px 0 0;font-size:13px;color:var(--mute)}
+nav{display:flex;border-bottom:1px solid var(--line);overflow-x:auto}
+nav button{flex:1;min-width:80px;background:none;border:0;border-bottom:3px solid transparent;color:var(--mute);font:inherit;font-weight:600;padding:13px 6px;cursor:pointer}
+nav button[aria-selected=true]{color:var(--paper);border-bottom-color:var(--amber)}
+main{padding:14px 14px 130px}
+section{display:none} section.on{display:block}
+h2{font-size:15px;margin:16px 0 8px;font-weight:650}
+h2:first-child{margin-top:0}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+input,select{font:inherit;width:100%;padding:12px;border-radius:8px;border:1px solid var(--line);background:#091529;color:var(--paper)}
+input:focus,select:focus{outline:2px solid var(--amber);outline-offset:1px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;gap:8px;margin:8px 0 2px}
+.seg button{flex:1;font:inherit;font-weight:600;padding:11px 8px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--mute);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--amber);color:#101010;border-color:var(--amber)}
+button.act{font:inherit;font-weight:650;border:1px solid var(--line);border-radius:8px;padding:13px;background:var(--ink2);color:var(--paper);cursor:pointer;width:100%;margin-top:12px}
+button.go{background:var(--amber);color:#101010;border-color:var(--amber)}
+.card{background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:13px;margin-bottom:10px}
+.kpi{font-size:25px;font-weight:700;letter-spacing:-.02em}
+.kpi small{display:block;font-size:13px;font-weight:500;color:var(--mute);letter-spacing:0}
+.res{max-height:42vh;overflow:auto;margin-top:8px}
+.hit{padding:11px 10px;border-bottom:1px solid var(--line);cursor:pointer}
+.hit b{display:block;font-size:14.5px;font-weight:600}
+.hit span{font-size:12.5px;color:var(--mute)}
+.line{display:grid;grid-template-columns:1fr 76px 76px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.line .d{font-size:14.5px;font-weight:600}
+.line .m{font-size:12.5px;color:var(--mute)}
+.line input{padding:9px;text-align:right}
+.chead{display:grid;grid-template-columns:1fr 76px 76px;gap:8px;font-size:12px;color:var(--mute);padding-bottom:4px;border-bottom:1px solid var(--line)}
+.chead span{text-align:right}
+.chead span:first-child{text-align:left}
+.move{display:flex;gap:6px}
+.move button{font:inherit;font-size:13px;font-weight:600;padding:8px 10px;border-radius:7px;border:1px solid var(--line);background:var(--ink2);color:var(--paper);cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:right;padding:7px 5px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mute);font-weight:600;font-size:12.5px}
+.hint{font-size:12.5px;color:var(--mute);margin:6px 0 0}
+#toast{position:fixed;left:12px;right:12px;bottom:16px;padding:12px;border-radius:10px;text-align:center;font-weight:600;display:none;z-index:9}
+#gate{position:fixed;inset:0;background:var(--ink);z-index:50;display:none;flex-direction:column;justify-content:center;padding:26px 20px;overflow:auto}
+#gate.on{display:flex}
+#gate h2{font-size:21px;margin:0 0 4px}
+#gate p.sub{color:var(--mute);font-size:14px;margin:0 0 18px}
+.utenti{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}
+.utenti button{font:inherit;font-weight:600;padding:11px 14px;border-radius:8px;border:1px solid var(--line);background:var(--ink2);color:var(--paper);cursor:pointer}
+.utenti button[aria-pressed=true]{background:var(--amber);color:#101010;border-color:var(--amber)}
+.pin{letter-spacing:.4em;text-align:center;font-size:20px}
+.home-kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.home-kpi .card{margin:0}
+.azioni{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.azioni button{font:inherit;font-weight:650;padding:16px 12px;border-radius:10px;border:1px solid var(--line);background:var(--ink2);color:var(--paper);cursor:pointer}
+.azioni button.go{background:var(--amber);color:#101010;border-color:var(--amber)}
+.chi{font-size:12.5px;color:var(--mute)}
+.cam{position:relative;background:#000;border-radius:10px;overflow:hidden;aspect-ratio:4/3;max-height:34vh;display:none;margin-top:10px}
+.cam.on{display:block}
+.cam video{width:100%;height:100%;object-fit:cover}
+.mir{position:absolute;inset:20% 8%;border:2px solid var(--amber);border-radius:8px;box-shadow:0 0 0 2000px rgba(11,27,51,.3)}
+.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:#16294a;color:var(--amber);margin-left:6px}
+</style>
+<div id="gate">
+  <div id="g_reg" style="display:none">
+    <h2>Benvenuto</h2>
+    <p class="sub">Un minuto per configurare il gestionale. Questi dati restano su questo dispositivo.</p>
+    <label for="r_att">Nome della tabaccheria</label><input type="text" id="r_att" placeholder="Tabaccheria MK2">
+    <label for="r_riv">Numero di rivendita</label><input type="text" id="r_riv" placeholder="0283">
+    <label for="r_nome">Il tuo nome</label><input type="text" id="r_nome" placeholder="Lollo">
+    <label for="r_pin">Scegli un PIN di 4 cifre</label><input type="password" inputmode="numeric" maxlength="4" id="r_pin" class="pin" placeholder="••••">
+    <button class="act go" id="r_ok">Crea il mio accesso</button>
+    <p class="hint">Il PIN serve a evitare che chiunque tocchi giacenze e impostazioni. Non è una password di sicurezza: chi ha accesso al dispositivo può comunque entrare nei dati.</p>
+  </div>
+  <div id="g_log" style="display:none">
+    <h2 id="l_tit">Accedi</h2>
+    <p class="sub" id="l_sub">Scegli il tuo nome e digita il PIN.</p>
+    <div class="utenti" id="l_utenti"></div>
+    <label for="l_pin">PIN</label><input type="password" inputmode="numeric" maxlength="4" id="l_pin" class="pin" placeholder="••••">
+    <button class="act go" id="l_ok">Entra</button>
+    <p class="hint" id="l_err"></p>
+  </div>
+</div>
+
+<header><h1>Magazzino Tabaccheria MK2</h1><p>Banco, magazzino, scaffale e distributore</p></header>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="home">Home</button>
+  <button role="tab" aria-selected="false" data-t="vendita">Vendita</button>
+  <button role="tab" aria-selected="false" data-t="carico">Carico</button>
+  <button role="tab" aria-selected="false" data-t="scaffale">Scaffale</button>
+  <button role="tab" aria-selected="false" data-t="dist">Distributore</button>
+  <button role="tab" aria-selected="false" data-t="conta">Conta serale</button>
+  <button role="tab" aria-selected="false" data-t="giac">Giacenze</button>
+  <button role="tab" aria-selected="false" data-t="vend">Vendite</button>
+  <button role="tab" aria-selected="false" data-t="dati">Dati</button>
+  <button role="tab" aria-selected="false" data-t="imp" id="tab_imp">Impostazioni</button>
+</nav>
+<main>
+<section id="home" class="on">
+  <p class="chi" id="chi"></p>
+  <div class="home-kpi">
+    <div class="card"><div class="kpi num" id="h_ven">0<small>pacchetti venduti oggi</small></div></div>
+    <div class="card"><div class="kpi num" id="h_inc">0,00 €<small>incasso di oggi</small></div></div>
+    <div class="card"><div class="kpi num" id="h_neg">0<small>pacchetti in negozio</small></div></div>
+    <div class="card"><div class="kpi num" id="h_dis">0<small>nel distributore</small></div></div>
+  </div>
+  <div class="azioni">
+    <button class="go" data-va="vendita">Vendi</button>
+    <button data-va="carico">Carica merce</button>
+    <button data-va="dist">Rifornisci macchina</button>
+    <button data-va="conta">Conta serale</button>
+  </div>
+  <h2>Da riordinare</h2>
+  <div class="card" id="h_sotto"></div>
+  <h2>Valore della merce</h2>
+  <div class="card" id="h_val"></div>
+</section>
+
+<section id="vendita">
+  <div class="card"><div class="kpi num" id="k_oggi">0<small>pacchetti venduti oggi</small></div>
+    <div class="kpi num" id="k_oggi_e" style="margin-top:6px">0,00 €<small>incasso · aggio 0,00 €</small></div></div>
+  <div class="seg" id="seg_ven">
+    <button aria-pressed="true" data-u="pacco">Vendo un pacchetto</button>
+    <button aria-pressed="false" data-u="stecca">Una stecca</button>
+  </div>
+  <div class="seg" id="seg_dove">
+    <button aria-pressed="true" data-l="banco">Vendo al banco</button>
+    <button aria-pressed="false" data-l="dist">Dal distributore</button>
+  </div>
+  <button class="act go" id="camon">Usa la fotocamera come pistola</button>
+  <div class="cam" id="cam"><video id="v" playsinline muted></video><div class="mir"></div></div>
+  <button class="act" id="luce" style="display:none">Accendi la luce</button>
+  <label for="q_ven">Spara il barcode qui, oppure cerca il nome</label>
+  <input type="text" id="q_ven" placeholder="il cursore deve stare qui" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <div class="card" id="ultima" style="display:none"></div>
+  <div class="res" id="r_ven"></div>
+  <h2>I più venduti, un tocco</h2>
+  <div id="rapidi"></div>
+  <button class="act" id="annulla">Annulla l'ultima vendita</button>
+  <p class="hint">Con il lettore collegato, tieni il cursore nel campo: ogni sparata scarica un pacchetto e il campo si ripulisce da solo. Il lettore va impostato per inviare Invio dopo il codice — di fabbrica quasi tutti lo fanno.</p>
+</section>
+
+<section id="carico">
+  <h2>Carica la merce arrivata</h2>
+  <div class="seg" id="seg_car">
+    <button aria-pressed="true" data-u="stecca">Stecche in magazzino</button>
+    <button aria-pressed="false" data-u="pacco">Pacchetti a scaffale</button>
+  </div>
+  <label for="q_car">Cerca il prodotto, o scansiona il barcode</label>
+  <input type="text" id="q_car" placeholder="marlboro gold, oppure 8000920000000">
+  <div class="res" id="r_car"></div>
+  <p class="hint">Ogni tocco aggiunge una stecca in magazzino, oppure un pacchetto a scaffale se cambi il selettore. Tocca più volte per quantità maggiori.</p>
+  <h2>Caricato oggi</h2>
+  <div class="card" id="oggi_car"></div>
+</section>
+
+<section id="scaffale">
+  <h2>Dal magazzino allo scaffale</h2>
+  <p class="hint">Quando apri una stecca per riempire lo scaffale, registralo qui: una stecca in meno, dieci pacchetti in più.</p>
+  <label for="q_sca">Cerca</label><input type="text" id="q_sca" placeholder="filtra i prodotti in magazzino">
+  <div id="l_sca"></div>
+</section>
+
+<section id="dist">
+  <div class="g2">
+    <div class="card"><div class="kpi num" id="d_pac">0<small>Pacchetti nel distributore</small></div></div>
+    <div class="card"><div class="kpi num" id="d_vuoti">0<small>Slot vuoti</small></div></div>
+  </div>
+  <h2>Rifornimento</h2>
+  <p class="hint">Scrivi quanti pacchetti metti dentro ogni slot: escono dal magazzino, aprendo le stecche da sole.</p>
+  <label for="q_dist">Filtra gli slot</label><input type="text" id="q_dist" placeholder="cerca prodotto o numero slot">
+  <div id="l_dist"></div>
+  <h2>Report venduto della macchina</h2>
+  <p class="hint">Incolla il report: una riga per prodotto, codice o nome seguito dai pezzi venduti. Scala gli slot e registra le vendite del distributore.</p>
+  <textarea id="rep" rows="5" placeholder="9 4&#10;478 2&#10;marlboro crafted gold 3" style="font:inherit;width:100%;padding:12px;border-radius:8px;border:1px solid var(--line);background:#091529;color:var(--paper)"></textarea>
+  <button class="act go" id="rep_ok">Registra il venduto</button>
+</section>
+
+<section id="conta">
+  <h2>Controllo di fine giornata</h2>
+  <p class="hint">Le vendite le registri già al banco: questa conta serve solo a verificare. Scrivi quello che hai contato davvero; ogni scostamento viene segnato come differenza, non come vendita.</p>
+  <label for="q_con">Filtra</label><input type="text" id="q_con" placeholder="cerca un prodotto">
+  <div class="chead"><span>Prodotto</span><span>Pacchetti</span><span>Stecche</span></div>
+  <div id="l_con"></div>
+  <button class="act go" id="salva_conta">Chiudi la giornata</button>
+</section>
+
+<section id="giac">
+  <div class="g2">
+    <div class="card"><div class="kpi num" id="k_pac">0<small>Pacchetti totali</small></div></div>
+    <div class="card"><div class="kpi num" id="k_val">0,00 €<small>Valore a prezzo pubblico</small></div></div>
+  </div>
+  <label for="q_gia">Cerca</label><input type="text" id="q_gia" placeholder="filtra le giacenze">
+  <div class="chead"><span>Prodotto</span><span>Pacchetti</span><span>Stecche</span></div>
+  <div id="l_gia"></div>
+</section>
+
+<section id="vend">
+  <h2>Venduto per prodotto</h2>
+  <div class="g2">
+    <div><label for="da">Dal</label><input type="date" id="da"></div>
+    <div><label for="a">Al</label><input type="date" id="a"></div>
+  </div>
+  <div class="card" id="tot_vend"></div>
+  <div id="l_vend"></div>
+</section>
+
+<section id="dati">
+  <h2>Copia di sicurezza</h2>
+  <p class="hint">I dati stanno su questo dispositivo. Scarica l'Excel ogni settimana.</p>
+  <button class="act go" id="xls">Scarica tutto in Excel</button>
+  <p class="hint">Reset, operatori e backup completo sono nella scheda Impostazioni.</p>
+</section>
+<section id="imp">
+  <h2>La tua attività</h2>
+  <label for="i_att">Nome</label><input type="text" id="i_att">
+  <label for="i_riv">Numero di rivendita</label><input type="text" id="i_riv">
+  <button class="act" id="i_salva">Salva</button>
+
+  <h2>Chi usa il gestionale</h2>
+  <div id="i_utenti"></div>
+  <label for="u_nome">Aggiungi una persona</label><input type="text" id="u_nome" placeholder="nome">
+  <div class="g2">
+    <div><label for="u_pin">PIN di 4 cifre</label><input type="password" inputmode="numeric" maxlength="4" id="u_pin" class="pin"></div>
+    <div><label for="u_ruolo">Ruolo</label><select id="u_ruolo">
+      <option value="operatore">Operatore: vende e conta</option>
+      <option value="titolare">Titolare: accesso completo</option></select></div>
+  </div>
+  <button class="act" id="u_add">Aggiungi</button>
+  <p class="hint">Ogni vendita resta firmata da chi l'ha fatta. Solo il titolare vede le impostazioni e può azzerare i dati.</p>
+
+  <h2>Soglia di riordino</h2>
+  <label for="soglia2">Avvisami sotto questi pacchetti</label><input type="number" id="soglia2" step="1">
+  <button class="act" id="s_salva2">Salva soglia</button>
+
+  <h2>Copia di sicurezza</h2>
+  <button class="act go" id="bk_exp">Scarica il backup completo</button>
+  <label for="bk_file">Ripristina da un backup</label><input type="file" id="bk_file" accept="application/json">
+
+  <h2>Azzeramenti</h2>
+  <p class="hint">Tre livelli, dal più leggero al più drastico.</p>
+  <button class="act" id="rz_ven">Cancella solo le vendite</button>
+  <button class="act" id="rz_gia">Ricarica la giacenza iniziale</button>
+  <button class="act" id="rz_tut">Cancella tutto e ricomincia</button>
+  <button class="act" id="esci">Esci</button>
+</section>
+
+</main>
+<div id="toast"></div>
+<script>
+const PROD =
+[{"c":7,"d":"821 ARGENTO*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"8054045440163","e13":"8054045440170"},{"c":66,"d":"821 BLU*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"8054045440125","e13":"8054045440132"},{"c":3104,"d":"821 CAMOU","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"8054045440200","e13":"8054045440217"},{"c":20865,"d":"821 GREEN*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"8033765631556","e13":"8033765632553"},{"c":2771,"d":"821 ROSSA*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"8054045440088","e13":"8054045440095"},{"c":3563,"d":"ALLUVE' ORIGINAL*AST20","s":"SIGARETTE","p":4.8,"k":0.2,"e8":"42342441","e13":"4006396019998"},{"c":3561,"d":"ALLUVE' WHITE*AST20","s":"SIGARETTE","p":4.5,"k":0.2,"e8":"42381891","e13":"4006396019974"},{"c":1963,"d":"AMERICAN SPIRIT ORIGINAL BLUE 30G*30GR","s":"TRINCIATI","p":8.6,"k":0.3,"e8":"80993414","e13":"8051160715091"},{"c":3582,"d":"AMERICAN SPIRIT ORIGINAL BLUE*70GR","s":"TRINCIATI","p":15.0,"k":0.35,"e8":"4033100016233","e13":"4033100016240"},{"c":2231,"d":"AMERICAN SPIRIT ORIGINAL ORANGE*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"80968269","e13":"8051160714933"},{"c":3299,"d":"AMERICAN SPIRIT ORIGINAL YELLOW 30G*30GR","s":"TRINCIATI","p":8.6,"k":0.3,"e8":"80919513","e13":"8051160715077"},{"c":1943,"d":"AMERICAN SPIRIT ORIGINAL YELLOW*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"80851479","e13":"8051160714957"},{"c":3824,"d":"AMSTERDAMER ORIGINAL *30G","s":"TRINCIATI","p":7.8,"k":0.3,"e8":"5707294251624","e13":"5707294251631"},{"c":21118,"d":"AMSTERDAMER XXX HIMALAYA*G","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"5707294340335","e13":"5707294340342"},{"c":21117,"d":"AMSTERDAMER XXX NEPAL*30G","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"5707294340366","e13":"5707294340373"},{"c":3969,"d":"APACHE BLUE*AST20","s":"SIGARETTE","p":4.7,"k":0.2,"e8":"8710151626463","e13":"8710151626470"},{"c":3912,"d":"APACHE*20PZ","s":"SIGARETTE","p":4.7,"k":0.2,"e8":"8710151618635","e13":"8710151618642"},{"c":2179,"d":"AUSTIN BLUE*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"54505148","e13":"5450524021817"},{"c":1586,"d":"AUSTIN RED*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"54505131","e13":"5450524021794"},{"c":20184,"d":"BASE BLU*20PZ","s":"SIGARETTE","p":5.0,"k":0.2,"e8":"8033254847758","e13":"8033254847765"},{"c":3910,"d":"BASE NERA*20PZ","s":"SIGARETTE","p":5.0,"k":0.2,"e8":"8033254846751","e13":"8033254846768"},{"c":3885,"d":"BASE ROSSA*20PZ","s":"SIGARETTE","p":5.0,"k":0.2,"e8":"8033254846706","e13":"8033254846713"},{"c":550,"d":"BENSON & HEDGES GOLD*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"80896296","e13":"8051160714599"},{"c":3416,"d":"BENSON & HEDGES WHITE 100S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80853459","e13":"8051160714834"},{"c":3016,"d":"BENSON & HEDGES WHITE*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80845300","e13":"8051160714919"},{"c":3415,"d":"BENSON & HEDGES YELLOW 100S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80993490","e13":"8051160714810"},{"c":3015,"d":"BENSON & HEDGES YELLOW*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"","e13":"8051160714896"},{"c":3014,"d":"BENSON&HEDGES BLUE 100S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80998563","e13":"8051160714773"},{"c":3438,"d":"BENSON&HEDGES BLUE SUPER S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80906469","e13":"8051160714391"},{"c":3814,"d":"BENSON&HEDGES BLUE*30GR","s":"TRINCIATI","p":6.5,"k":0.3,"e8":"80804451","e13":"8051160710157"},{"c":2982,"d":"BENSON&HEDGES BLUE*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80919599","e13":"8051160714858"},{"c":3118,"d":"BENSON&HEDGES BLUE*CART20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80998570","e13":"8051160714674"},{"c":3013,"d":"BENSON&HEDGES RED 100S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80845331","e13":"8051160714797"},{"c":2981,"d":"BENSON&HEDGES RED*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80815105","e13":"8051160714872"},{"c":3117,"d":"BENSON&HEDGES RED*CART20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80998587","e13":"8051160714650"},{"c":3439,"d":"BENSON&HEDGES YELLOW SUPER S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80876397","e13":"8051160714414"},{"c":2020,"d":"BLACK DEVIL BLACK*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"54009356","e13":"5450524066849"},{"c":3185,"d":"BLACK DEVIL PINK*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"54009349","e13":"5450524066825"},{"c":2255,"d":"BLACK DEVIL YELLOW*40GR","s":"TRINCIATI","p":7.7,"k":0.2,"e8":"8710151561948","e13":"8710151562129"},{"c":3350,"d":"BLACK DEVIL YELLOW*AST20","s":"SIGARETTE","p":4.4,"k":0.2,"e8":"8710151546587","e13":"8710151546648"},{"c":21715,"d":"BLENDS GOLD CLASSICS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80912552","e13":"8056897052440"},{"c":21717,"d":"BLENDS GREEN CLASSICS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80912583","e13":"8056897052471"},{"c":21714,"d":"BLENDS RED CLASSICS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80912569","e13":"8056897052457"},{"c":21716,"d":"BLENDS SILVER CLASSICS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80912576","e13":"8056897052464"},{"c":20120,"d":"BURTON BLUE*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8710151595158","e13":"8710151595165"},{"c":3798,"d":"BURTON ORIGINAL*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8710151600180","e13":"8710151600197"},{"c":20225,"d":"CAMEL ACTIVATE*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"42423713","e13":"4006396075048"},{"c":3605,"d":"CAMEL BLONDE*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"80851486","e13":"8051160714155"},{"c":546,"d":"CAMEL BLUE 100S*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"42391371","e13":"4006396046550"},{"c":3658,"d":"CAMEL BLUE VOLUME*30GR","s":"TRINCIATI","p":8.2,"k":0.15,"e8":"8051160713974","e13":"8051160713981"},{"c":3458,"d":"CAMEL BLUE*30GR","s":"TRINCIATI","p":8.3,"k":0.3,"e8":"80813422","e13":"8051160714094"},{"c":478,"d":"CAMEL BLUE*AST20","s":"SIGARETTE","p":6.3,"k":0.2,"e8":"80998501","e13":"8051160714995"},{"c":632,"d":"CAMEL BLUE*CART20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80968245","e13":"8051160715015"},{"c":20462,"d":"CAMEL COMPACT*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"80925736","e13":"8051160714292"},{"c":2240,"d":"CAMEL ESSENTIAL BLUE*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"80998532","e13":"8051160714698"},{"c":3459,"d":"CAMEL ESSENTIAL*30GR","s":"TRINCIATI","p":8.3,"k":0.3,"e8":"80815136","e13":"8051160714131"},{"c":20955,"d":"CAMEL GARNET STICKS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80802723","e13":"8051160713530"},{"c":464,"d":"CAMEL ORANGE*AST20","s":"SIGARETTE","p":6.3,"k":0.2,"e8":"80824923","e13":"8051160714971"},{"c":21003,"d":"CAMEL SENSO GOLD*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"4033100098512","e13":""},{"c":552,"d":"CAMEL SILVER*AST20","s":"SIGARETTE","p":6.3,"k":0.2,"e8":"80815129","e13":"8051160744978"},{"c":2108,"d":"CAMEL WHITE*AST20","s":"SIGARETTE","p":6.3,"k":0.2,"e8":"80853428","e13":"8051160714339"},{"c":405,"d":"CAMEL YELLOW 100S*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"80876359","e13":"8051160713653"},{"c":20956,"d":"CAMEL YELLOW STICKS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80813477","e13":"8051160713516"},{"c":3457,"d":"CAMEL YELLOW*30GR","s":"TRINCIATI","p":8.3,"k":0.3,"e8":"80851448","e13":"8051160714117"},{"c":264,"d":"CAMEL YELLOW*AST20","s":"SIGARETTE","p":6.3,"k":0.2,"e8":"80853473","e13":"8051160714353"},{"c":270,"d":"CAMEL YELLOW*CART20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80851493","e13":"8051160714377"},{"c":20846,"d":"CCOBATO BLUEBERRY *20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"6972537013577","e13":"6972537013560"},{"c":20845,"d":"CCOBATO PEACH *20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"6972537013591","e13":"6972537013584"},{"c":20111,"d":"CHE BLUE*20PZ","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"80968238","e13":"8051160715039"},{"c":2513,"d":"CHE ORIGINAL BLUE*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"5400827043115","e13":"5400827043122"},{"c":2420,"d":"CHE*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"54507425","e13":"5450524007897"},{"c":20345,"d":"CHE+ BLAST*20PZ","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"5400827025104","e13":"5400827025111"},{"c":3114,"d":"CHESTERFIELD BLUE 100*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80784364","e13":"8032817681181"},{"c":201,"d":"CHESTERFIELD BLUE KS*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"87248074","e13":"8032817684557"},{"c":2082,"d":"CHESTERFIELD BLUE KS*CART20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80736752","e13":"8032817680191"},{"c":3482,"d":"CHESTERFIELD BLUE VOLUME TOBACCO*30GR","s":"TRINCIATI","p":7.8,"k":0.18,"e8":"8032817681594","e13":"8032817681600"},{"c":3498,"d":"CHESTERFIELD BLUE*30GR","s":"TRINCIATI","p":7.8,"k":0.3,"e8":"8032817681686","e13":"8056897051528"},{"c":21419,"d":"CHESTERFIELD LABEL BLUE KS*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80855446","e13":"8056897051092"},{"c":21420,"d":"CHESTERFIELD LABEL ORIGINAL KS*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80846666","e13":"8056897051085"},{"c":3113,"d":"CHESTERFIELD ORIGINAL 100*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80792888","e13":"8032817681174"},{"c":3497,"d":"CHESTERFIELD ORIGINAL FINE CUT TOB.*30GR","s":"TRINCIATI","p":7.8,"k":0.3,"e8":"8032817681662","e13":"8056897051535"},{"c":96,"d":"CHESTERFIELD ORIGINAL KS*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"87248678","e13":"4023500015813"},{"c":2081,"d":"CHESTERFIELD ORIGINAL KS*CART20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80736745","e13":"8032817680184"},{"c":3491,"d":"CHESTERFIELD ORIGINAL VOLUME TOBACCO*30G","s":"TRINCIATI","p":7.8,"k":0.18,"e8":"8032817681624","e13":"8032817681631"},{"c":3815,"d":"CHESTERFIELD PREMIUM VIRGINIA*30GR","s":"TRINCIATI","p":7.9,"k":0.3,"e8":"8032817683673","e13":"8056897051559"},{"c":3499,"d":"CHESTERFIELD ROLL YOUR OWN*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"8032817681709","e13":"8056897051566"},{"c":2555,"d":"CHESTERFIELD ROLL YOUR OWN*80GR","s":"TRINCIATI","p":20.6,"k":0.4,"e8":"8032817680450","e13":"8032817680467"},{"c":2257,"d":"CHESTERFIELD SILVER KS*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80790242","e13":"8032817681167"},{"c":20077,"d":"CHESTERFIELD TUNED BLUE*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80978961","e13":"8032817685943"},{"c":3483,"d":"CHIARAVALLE BURLEY & VIRGINIA*30GR","s":"TRINCIATI","p":7.2,"k":0.3,"e8":"8033765634144","e13":"8033765635141"},{"c":2680,"d":"CHIARAVALLE BURLEY & VIRGINIA*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"8054045440569","e13":"8054045440576"},{"c":20653,"d":"CHIARAVALLE FIOR DI TABACCO*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"8033765631013","e13":"8033765632010"},{"c":21119,"d":"CHIARAVALLE GRAN RISERVA*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"8054045440040","e13":"8054045440057"},{"c":2922,"d":"CHIARAVALLE VIRGINIA BRIGHT*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"8054045440644","e13":"8054045440651"},{"c":3484,"d":"CHIARAVALLE VIRGINIA*30GR","s":"TRINCIATI","p":7.2,"k":0.3,"e8":"8033765634021","e13":"8033765635028"},{"c":2679,"d":"CHIARAVALLE VIRGINIA*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"8054045440606","e13":"8054045440613"},{"c":3589,"d":"CORSET LILAC A PORTER*AST20","s":"SIGARETTE","p":4.8,"k":0.2,"e8":"","e13":"3800221969448"},{"c":2660,"d":"CORSET LILAS*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"3800162442987","e13":"3800162442994"},{"c":2661,"d":"CORSET MARINE*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"3800162442956","e13":"3800162442963"},{"c":3588,"d":"CORSET MAUVE A PORTER*AST20","s":"SIGARETTE","p":4.8,"k":0.2,"e8":"","e13":"3800221963392"},{"c":2659,"d":"CORSET PINK*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"3800162442925","e13":"3800162442932"},{"c":20112,"d":"CORSET WHITE*20PZ","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"2800162449895","e13":"3800162442901"},{"c":3838,"d":"COUTURE GOLD *20PZ","s":"SIGARETTE","p":4.7,"k":0.2,"e8":"42347910","e13":"4260471458533"},{"c":3837,"d":"COUTURE SILVER *20PZ","s":"SIGARETTE","p":4.7,"k":0.2,"e8":"42347903","e13":"4260471458502"},{"c":728,"d":"DAVIDOFF CLASSIC*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"4030600283240","e13":"4030600283257"},{"c":583,"d":"DAVIDOFF GOLD SL LINE*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"4030600283301","e13":"4030600283318"},{"c":758,"d":"DAVIDOFF GOLD*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"4030600283271","e13":"4030600283288"},{"c":21108,"d":"DELIA CLASSIC GOLD*20PZ","s":"TABACCHI DA INALAZIONE","p":5.0,"k":0.2,"e8":"","e13":"8056897050842"},{"c":21232,"d":"DELIA CLASSIC GREEN*20PZ","s":"TABACCHI DA INALAZIONE","p":5.0,"k":0.2,"e8":"80846604","e13":"8056897050903"},{"c":21109,"d":"DELIA CLASSIC RED*20PZ","s":"TABACCHI DA INALAZIONE","p":5.0,"k":0.2,"e8":"80839620","e13":"8056897050835"},{"c":21380,"d":"DELIA CLASSIC SILVER*20PZ","s":"TABACCHI DA INALAZIONE","p":5.0,"k":0.2,"e8":"80855491","e13":"8056897051122"},{"c":1983,"d":"DIANA BLU 100'S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80729907","e13":"8032817680108"},{"c":630,"d":"DIANA BLU KS*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"87248715","e13":"4023500030021"},{"c":406,"d":"DIANA BLU KS*CART20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80780465","e13":"8032817687183"},{"c":1982,"d":"DIANA ROSSA 100'S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80729891","e13":"8032817680023"},{"c":233,"d":"DIANA ROSSA KS*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"40235028","e13":"4023500030007"},{"c":234,"d":"DIANA ROSSA KS*CART20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80769866","e13":"8032817687176"},{"c":913,"d":"DIANA SSL BLU*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80769859","e13":"8032817687121"},{"c":706,"d":"DRUM BRIGHT BLUE*40GR","s":"TRINCIATI","p":10.0,"k":0.4,"e8":"8710900071162","e13":"8710900871168"},{"c":336,"d":"DRUM ORIGINAL*40GR","s":"TRINCIATI","p":10.0,"k":0.4,"e8":"8710900071001","e13":"8710900871007"},{"c":361,"d":"DRUM WHITE*40GR","s":"TRINCIATI","p":10.0,"k":0.4,"e8":"8710900071292","e13":"8710900871298"},{"c":818,"d":"DUNHILL BLU*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"87208252","e13":"4066900010330"},{"c":649,"d":"DUNHILL CLUB BIANCA*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80766681","e13":"8027463206499"},{"c":231,"d":"DUNHILL CLUB*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80866329","e13":"8027463202316"},{"c":291,"d":"DUNHILL GOLD*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"87208733","e13":"4066900010316"},{"c":549,"d":"DUNHILL INTERNATIONAL*AST20","s":"SIGARETTE","p":7.2,"k":0.2,"e8":"87217124","e13":"8721700917512"},{"c":857,"d":"DUNHILL MS BIANCHE*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80787778","e13":"8027463208578"},{"c":60,"d":"DUNHILL MS BIONDE 100'S*AST20","s":"SIGARETTE","p":6.2,"k":0.2,"e8":"80782131","e13":"8027463200602"},{"c":177,"d":"DUNHILL MS BIONDE*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80926962","e13":"8027463201777"},{"c":176,"d":"DUNHILL MS BIONDE*CART20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80985631","e13":"8027463201760"},{"c":851,"d":"DUNHILL MS CHIARE*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80782230","e13":"8027463208516"},{"c":993,"d":"DUNHILL MS ROSSE*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80765479","e13":"8027463209933"},{"c":852,"d":"DUNHILL MS ROSSE*CART20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80776482","e13":"8027463208523"},{"c":798,"d":"DUNHILL RED*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"87208696","e13":"4066900010200"},{"c":1811,"d":"ELIXYR BLUE 100'S*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"54504431","e13":"5450021009103"},{"c":1481,"d":"ELIXYR BLUE*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"54503571","e13":"5450021008069"},{"c":1810,"d":"ELIXYR RED 100'S*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"","e13":"5450021009080"},{"c":1480,"d":"ELIXYR RED*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"54503564","e13":"5450021008052"},{"c":3188,"d":"ELIXYR+ 100S*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"5400827013668","e13":"5400827013675"},{"c":21110,"d":"ELIXYR+ X-TYPE 100S*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"5400827035790","e13":"5400827035806"},{"c":1719,"d":"ELIXYR+*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"5400827013545","e13":"5400827013552"},{"c":3945,"d":"ELIXYR+X TYPE*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"5400827017123","e13":"5400827017130"},{"c":2404,"d":"EMAIL BLACK*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8033765631181","e13":"8033765632188"},{"c":2412,"d":"EMAIL WHITE*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8033765631266","e13":"8033765632263"},{"c":20697,"d":"EVO AMBER STICKS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80824947","e13":"8051160713035"},{"c":21601,"d":"EVO AMBER*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80770312","e13":"8051160715374"},{"c":21603,"d":"EVO AZURE*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80773221","e13":"8051160715510"},{"c":20228,"d":"EVO BRONZE STICKS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80834359","e13":"8051160712090"},{"c":21604,"d":"EVO BRONZE*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80770350","e13":"8051160715435"},{"c":20229,"d":"EVO BURGUNDY STICKS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80998549","e13":"8051160712410"},{"c":21605,"d":"EVO BURGUNDY*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80770343","e13":"8051160715411"},{"c":20230,"d":"EVO GOLD STICKS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80876328","e13":"8051160712113"},{"c":21606,"d":"EVO GOLD*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80770374","e13":"8051160715459"},{"c":20698,"d":"EVO SILVER STICKS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80906483","e13":"8051160712434"},{"c":21607,"d":"EVO SILVER*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80770336","e13":"8051160715398"},{"c":20699,"d":"EVO TAN STICKS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80828587","e13":"8051160713059"},{"c":21608,"d":"EVO TAN*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80770305","e13":"8051160715350"},{"c":21001,"d":"EVO TEAL GREEN STICKS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80813446","e13":"8051160713219"},{"c":21610,"d":"EVO TEAL GREEN*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80996545","e13":"8051160715312"},{"c":20783,"d":"EVO TEAL STICKS*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80824985","e13":"8051160713172"},{"c":21609,"d":"EVO TEAL*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80824138","e13":"8051160715299"},{"c":21611,"d":"EVO VELVET*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"80770381","e13":"8051160715473"},{"c":20844,"d":"FIIT ELEMENT STREAM*20PZ","s":"TABACCHI DA INALAZIONE","p":4.7,"k":0.2,"e8":"80808701","e13":"8032817688159"},{"c":21268,"d":"FIIT REGULAR COPPER*20 PZ","s":"TABACCHI DA INALAZIONE","p":4.7,"k":0.2,"e8":"80821649","e13":"8056897050248"},{"c":20202,"d":"FIIT REGULAR DEEP*20PZ","s":"TABACCHI DA INALAZIONE","p":4.7,"k":0.2,"e8":"80895084","e13":"8032817686544"},{"c":20203,"d":"FIIT REGULAR SKY*20PZ","s":"TABACCHI DA INALAZIONE","p":4.7,"k":0.2,"e8":"80954347","e13":"8032817686551"},{"c":21269,"d":"FIIT REGULAR STONE*20PZ","s":"TABACCHI DA INALAZIONE","p":4.7,"k":0.2,"e8":"80821663","e13":"8056897050255"},{"c":20065,"d":"FIIT REGULAR*20PZ","s":"TABACCHI DA INALAZIONE","p":4.7,"k":0.2,"e8":"80978398","e13":"8032817684649"},{"c":2218,"d":"FUTURA BLU*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8054045440446","e13":"8054045440453"},{"c":604,"d":"FUTURA CLASSICA*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"8054045440361","e13":"8054045440378"},{"c":2383,"d":"FUTURA ROSSA*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8054045440408","e13":"8054045440415"},{"c":21034,"d":"GAULOISES BLONDES BLU 100S*AST20","s":"SIGARETTE","p":5.3,"k":0.2,"e8":"4030600332122","e13":"4030600332139"},{"c":558,"d":"GAULOISES BLONDES BLU*AST20","s":"SIGARETTE","p":5.3,"k":0.2,"e8":"4030600283813","e13":"4030600283820"},{"c":21035,"d":"GAULOISES BLONDES ROSSA 100S*AST20","s":"SIGARETTE","p":5.3,"k":0.2,"e8":"4030600332153","e13":"4030600332160"},{"c":640,"d":"GAULOISES BLONDES ROSSA*AST20","s":"SIGARETTE","p":5.3,"k":0.2,"e8":"4030600283844","e13":"4030600283851"},{"c":888,"d":"GITANES*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"4030600283998","e13":"4030600284001"},{"c":2217,"d":"GLAMOUR BLUES*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"80876380","e13":"8051160714612"},{"c":2216,"d":"GLAMOUR PINKS*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"80824916","e13":"8051160714636"},{"c":21760,"d":"GOLDEN BLEND'S BLACK 30*30GR","s":"TRINCIATI","p":7.9,"k":0.3,"e8":"49541007","e13":"4002450020559"},{"c":21761,"d":"GOLDEN BLEND'S PINK 30*30GR","s":"TRINCIATI","p":7.9,"k":0.3,"e8":"42511014","e13":"4002450020542"},{"c":3432,"d":"GOLDEN BLEND'S VIRGINIA GT 30*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"42302766","e13":"4002450029637"},{"c":3372,"d":"GOLDEN BLEND'S VIRGINIA*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"42302285","e13":"4002450028265"},{"c":1538,"d":"GOLDEN BLEND'S VIRGINIA*40GR","s":"TRINCIATI","p":10.7,"k":0.4,"e8":"42302292","e13":"4002450028982"},{"c":21759,"d":"GOLDEN BLEND'S WHITE 30*30GR","s":"TRINCIATI","p":7.9,"k":0.3,"e8":"42511038","e13":"4002450020535"},{"c":801,"d":"GOLDEN VIRGINIA THE ORIGINAL 40G*40GR","s":"TRINCIATI","p":10.5,"k":0.4,"e8":"4030700184799","e13":"4030700184805"},{"c":1915,"d":"GOLDEN VIRGINIA THE ORIGINAL YELLOW 40G","s":"TRINCIATI","p":10.5,"k":0.4,"e8":"4030700184829","e13":"4030700184836"},{"c":3487,"d":"GOLDEN VIRGINIA THE ORIGINAL YELLOW*30GR","s":"TRINCIATI","p":7.7,"k":0.3,"e8":"4030700184768","e13":"4030700184775"},{"c":3486,"d":"GOLDEN VIRGINIA THE ORIGINAL*30GR","s":"TRINCIATI","p":7.7,"k":0.3,"e8":"4030700183051","e13":"4030700183068"},{"c":3942,"d":"HORIZON BLUE*30GR","s":"TRINCIATI","p":7.4,"k":0.3,"e8":"4030700185550","e13":"4030700185567"},{"c":3802,"d":"HORIZON*30GR","s":"TRINCIATI","p":7.4,"k":0.3,"e8":"4030700185147","e13":"4030700185536"},{"c":20206,"d":"ID BLUE TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"4030700161202","e13":"4030700161219"},{"c":20914,"d":"ID BOLD MAGENTA TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"4030700144984","e13":"4030700144991"},{"c":20424,"d":"ID BRIGHT YELLOW TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"4030700163022","e13":"4030700163039"},{"c":20205,"d":"ID BRONZE TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"4030700161172","e13":"4030700161189"},{"c":20913,"d":"ID FLORA PINK TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"4030700146414","e13":"4030700146421"},{"c":21799,"d":"ID GOLD TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"4030700197973","e13":"4030700197980"},{"c":20915,"d":"ID POLAR GREEN TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"4030700193975","e13":"4030700193982"},{"c":21800,"d":"ID RED TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"4030700197942","e13":"4030700197959"},{"c":21801,"d":"ID SILVER TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"4030700182160","e13":"4030700182177"},{"c":20425,"d":"ID VELVET COPPER TOBACCO TOB*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"4030700163053","e13":"4030700163060"},{"c":20426,"d":"ID WARM AMBER TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"4030700162995","e13":"4030700163008"},{"c":3846,"d":"IGN IL GUSTO NOSTRANO*30GR","s":"TRINCIATI","p":7.9,"k":0.3,"e8":"42383765","e13":"4002450027510"},{"c":20932,"d":"ISENZIA - FORREST PURPLE CRUSH*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"8719964048899","e13":"8719964048905"},{"c":20935,"d":"ISENZIA - ICE BLUE CRUSH*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"8719964049018","e13":"8719964049025"},{"c":20933,"d":"ISENZIA - SUMMER RED CRUSH*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"8719964048936","e13":"8719964048936"},{"c":21000,"d":"ISENZIA SUNSET CORAL CRUSH*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"8719964048950","e13":"8719964048967"},{"c":3519,"d":"JPS BLUE 30 GR*30GR","s":"TRINCIATI","p":7.2,"k":0.3,"e8":"4030700150800","e13":"4030700150817"},{"c":2288,"d":"JPS BLUE STREAM 100*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"4030600283608","e13":"4030600283615"},{"c":2286,"d":"JPS BLUE STREAM*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"4030600283516","e13":"4030600283523"},{"c":20201,"d":"JPS BLUE VOLUME*30GR","s":"TRINCIATI","p":7.2,"k":0.3,"e8":"4030700160762","e13":"4030700160779"},{"c":2956,"d":"JPS BLUE*CART20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"4030600283691","e13":"4030600283707"},{"c":21616,"d":"JPS DEEP BLUE*AST20","s":"SIGARETTE","p":5.3,"k":0.2,"e8":"4030600353073","e13":"4030600353080"},{"c":21615,"d":"JPS DEEP RED*AST20","s":"SIGARETTE","p":5.3,"k":0.2,"e8":"4030600353042","e13":"4030600353059"},{"c":154,"d":"JPS ORIGINAL*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"4030600283455","e13":"4030600283462"},{"c":2287,"d":"JPS RED 100*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"4030600283578","e13":"4030600283585"},{"c":3520,"d":"JPS RED 30 GR*30GR","s":"TRINCIATI","p":7.2,"k":0.3,"e8":"4030700150770","e13":"4030700150787"},{"c":293,"d":"JPS RED*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"4030600283486","e13":"4030600283493"},{"c":2957,"d":"JPS RED*CART20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"4030600283660","e13":"4030600283677"},{"c":2883,"d":"JPS SILVER 100*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"4030600283639","e13":"4030600283646"},{"c":300,"d":"JPS SILVER*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"4030600283547","e13":"4030600283554"},{"c":3006,"d":"JPS SSL-LINE SILVER*AST20","s":"SIGARETTE","p":5.3,"k":0.2,"e8":"4030600283721","e13":"4030600283738"},{"c":3007,"d":"JPS SSL-LINE WHITE*AST20","s":"SIGARETTE","p":5.3,"k":0.2,"e8":"4030600283752","e13":"4030600283769"},{"c":3941,"d":"JPS WHITE*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"4030600283783","e13":"4030600283790"},{"c":499,"d":"KENT SURROUND*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"54029170","e13":"5410833362506"},{"c":1303,"d":"L&M BLUE LABEL KS*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"40235042","e13":"4023500030083"},{"c":1313,"d":"L&M RED LABEL KS*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"87248784","e13":"4023500006507"},{"c":21233,"d":"LEVIA BRIGHT SONATA*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80839682","e13":"8056897050897"},{"c":21058,"d":"LEVIA GLACIAL BEAT*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80839613","e13":"8056897050736"},{"c":87,"d":"LIDO BLU*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"80991090","e13":"8027463200879"},{"c":841,"d":"LINDA BLU*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"8054045440323","e13":"8054045440330"},{"c":488,"d":"LINDA*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"8054045440286","e13":"8054045440293"},{"c":21286,"d":"LUCKIES CRAFTED 1871 BLUE*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"80973256","e13":"8027463016838"},{"c":21285,"d":"LUCKIES CRAFTED 1871 RED*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"80969587","e13":"8027463016821"},{"c":867,"d":"LUCKY STRIKE AMBER*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"59468905","e13":"5942425000928"},{"c":3449,"d":"LUCKY STRIKE BLUE 30*30GR","s":"TRINCIATI","p":8.0,"k":0.18,"e8":"80864417","e13":"8723900933569"},{"c":3947,"d":"LUCKY STRIKE ECLIPSE*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80800569","e13":"8027463201067"},{"c":20403,"d":"LUCKY STRIKE ORIGINAL 100'S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80829522","e13":"8027463007096"},{"c":3451,"d":"LUCKY STRIKE ORIGINAL BLUE 30*30GR","s":"TRINCIATI","p":8.0,"k":0.18,"e8":"80951230","e13":"8723900933521"},{"c":3450,"d":"LUCKY STRIKE ORIGINAL RED 30*30GR","s":"TRINCIATI","p":8.0,"k":0.18,"e8":"80969334","e13":"8723900933507"},{"c":451,"d":"LUCKY STRIKE ORIGINAL*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"87196429","e13":"4031300006672"},{"c":3448,"d":"LUCKY STRIKE RED 30*30GR","s":"TRINCIATI","p":8.0,"k":0.18,"e8":"80822745","e13":"8723900933545"},{"c":536,"d":"LUCKY STRIKE RED*CART20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"40318172","e13":"4031800001078"},{"c":21264,"d":"LUCKY STRIKE RUBY*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"80915102","e13":"8027463016555"},{"c":3319,"d":"LUCKY STRIKE SILVER BAY*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80816331","e13":"8027463002305"},{"c":20468,"d":"LUCKY STRIKE STICKS BALANCED TOB*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"80831679","e13":"8027463009335"},{"c":20469,"d":"LUCKY STRIKE STICKS GOLD TOB*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"80832812","e13":"8027463009359"},{"c":20687,"d":"LUCKY STRIKE STICKS RICH TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"80843467","e13":"8027463009601"},{"c":20688,"d":"LUCKY STRIKE STICKS TWIST*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"80859352","e13":"8027463009618"},{"c":3536,"d":"MADEMOISELLE LA BLANCHE*AST20","s":"SIGARETTE","p":5.3,"k":0.2,"e8":"5400827024862","e13":"5400827024879"},{"c":3365,"d":"MADEMOISELLE LA BLEUE*AST20","s":"SIGARETTE","p":5.3,"k":0.2,"e8":"5400827024831","e13":"5400827024831"},{"c":20957,"d":"MADEMOISELLE LA PLUS*AST20","s":"SIGARETTE","p":5.3,"k":0.2,"e8":"5400827034649","e13":"5400827034656"},{"c":3364,"d":"MADEMOISELLE LA ROSE*AST20","s":"SIGARETTE","p":5.3,"k":0.2,"e8":"5400827024800","e13":"5400827024817"},{"c":126,"d":"MANILA*40GR","s":"TRINCIATI","p":10.7,"k":0.4,"e8":"42302384","e13":"4002450023307"},{"c":2487,"d":"MANITOU VIRGINIA GOLD*30GR","s":"TRINCIATI","p":6.6,"k":0.15,"e8":"4006396082312","e13":"4006396083517"},{"c":3518,"d":"MANITOU VIRGINIA ORIGINAL*30GR","s":"TRINCIATI","p":6.9,"k":0.15,"e8":"4006396082374","e13":"4006396083494"},{"c":2488,"d":"MANITOU VIRGINIA PINK*30GR","s":"TRINCIATI","p":6.6,"k":0.15,"e8":"4006396082343","e13":"4006396083500"},{"c":20683,"d":"MARK ADAMS 1 GOLD 100*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8594060367606","e13":"8594060367613"},{"c":20700,"d":"MARK ADAMS 1 GOLD KS*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8594060367576","e13":"8594060367583"},{"c":20684,"d":"MARK ADAMS 1 RED 100*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8594060367668","e13":"8594060367675"},{"c":20682,"d":"MARK ADAMS 1 RED KS*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8594060367637","e13":"8594060367644"},{"c":819,"d":"MARLBORO 100S *AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"87248432","e13":"8032817684564"},{"c":3341,"d":"MARLBORO BLUE LINE*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"80834601","e13":"8032817681273"},{"c":21037,"d":"MARLBORO CRAFTED GOLD 100S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80808763","e13":"8056897050064"},{"c":3906,"d":"MARLBORO CRAFTED GOLD*20PZ","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80967705","e13":"8032817683901"},{"c":21036,"d":"MARLBORO CRAFTED RED 100S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80808787","e13":"8056897050071"},{"c":3907,"d":"MARLBORO CRAFTED RED*20PZ","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80920212","e13":"8032817683925"},{"c":651,"d":"MARLBORO GOLD 100S*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"80954385","e13":"8032817684571"},{"c":9,"d":"MARLBORO GOLD KS*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"87248265","e13":"8724800001617"},{"c":618,"d":"MARLBORO GOLD KS*CART20","s":"SIGARETTE","p":6.3,"k":0.2,"e8":"87248579","e13":"3258171028003"},{"c":3340,"d":"MARLBORO GOLD LINE*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"80788720","e13":"8032817681266"},{"c":2658,"d":"MARLBORO GOLD POCKET PACK*AST20","s":"SIGARETTE","p":5.7,"k":0.2,"e8":"80939184","e13":"8032817680627"},{"c":21287,"d":"MARLBORO GOLD TITANIUM EDITION*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"80839651","e13":"8056897050873"},{"c":2214,"d":"MARLBORO GOLD TOUCH KS*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"80750130","e13":"8032817680290"},{"c":3704,"d":"MARLBORO GOLD TOUCH ROLLING TOBACCO*30GR","s":"TRINCIATI","p":7.8,"k":0.3,"e8":"8032817682881","e13":"8032817682898"},{"c":3495,"d":"MARLBORO GOLD*30GR","s":"TRINCIATI","p":8.3,"k":0.3,"e8":"8032817681747","e13":"8032817681754"},{"c":2769,"d":"MARLBORO GOLD*70GR","s":"TRINCIATI","p":18.9,"k":0.35,"e8":"8032817680801","e13":"8032817680818"},{"c":395,"d":"MARLBORO KS*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"87248593","e13":"5410706223156"},{"c":396,"d":"MARLBORO KS*CART20","s":"SIGARETTE","p":6.3,"k":0.2,"e8":"87248586","e13":"5410706223231"},{"c":259,"d":"MARLBORO MIX*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"87248982","e13":"8724800000757"},{"c":3504,"d":"MARLBORO POCKET PACK*CART20","s":"SIGARETTE","p":5.7,"k":0.2,"e8":"80764281","e13":"8032817681952"},{"c":21288,"d":"MARLBORO RED TITANIUM EDITION*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"80839644","e13":"8056897050866"},{"c":2373,"d":"MARLBORO RED TOUCH*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"80913306","e13":"8032817680405"},{"c":2616,"d":"MARLBORO SILVER BLUE KS*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"80769248","e13":"8032817680597"},{"c":3422,"d":"MARLBORO TOUCH*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"80940500","e13":"8032817681518"},{"c":2688,"d":"MARLBORO WHITE*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"80966647","e13":"8032817680702"},{"c":3494,"d":"MARLBORO*30GR","s":"TRINCIATI","p":8.3,"k":0.3,"e8":"8032817681723","e13":"8032817681730"},{"c":2767,"d":"MARLBORO*70GR","s":"TRINCIATI","p":18.9,"k":0.35,"e8":"8032817680764","e13":"8032817680771"},{"c":3490,"d":"MAYA 30 GR*30GR","s":"TRINCIATI","p":7.3,"k":0.3,"e8":"4024810007048","e13":"4024810025028"},{"c":20732,"d":"MC COSMIC GOLD*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"4895239506463","e13":"4895239506470"},{"c":20733,"d":"MC COSMIC RED*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"4895239506432","e13":"4895239506449"},{"c":20652,"d":"MC S - BLUE*20PZ","s":"TABACCHI DA INALAZIONE","p":4.0,"k":0.2,"e8":"4895239505626","e13":"4895239505633"},{"c":3882,"d":"MC-S GOLD *20PZ","s":"TABACCHI DA INALAZIONE","p":4.0,"k":0.2,"e8":"4897028989273","e13":"4895239507644"},{"c":3881,"d":"MC-S RED *20PZ","s":"TABACCHI DA INALAZIONE","p":4.0,"k":0.2,"e8":"4897028989457","e13":"4897028989464"},{"c":2423,"d":"MERIT BAY KS*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80772033","e13":"8032817680412"},{"c":376,"d":"MERIT BIANCA KS*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"87248067","e13":"8724800002300"},{"c":256,"d":"MERIT BLU 100'S*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"87248463","e13":"8724800001624"},{"c":874,"d":"MERIT BLU KS*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"87248722","e13":"8724800001631"},{"c":949,"d":"MERIT GIALLA 100'S*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"87248890","e13":"8724800001600"},{"c":997,"d":"MERIT GIALLA KS*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"87248289","e13":"4023500007283"},{"c":2656,"d":"MERIT GIALLA*CART20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"80996859","e13":"8032817680603"},{"c":81,"d":"MERIT SSL*AST20","s":"SIGARETTE","p":6.5,"k":0.2,"e8":"87248234","e13":"8724800000528"},{"c":20142,"d":"MON TERROIR BLOND*30GR","s":"TRINCIATI","p":7.3,"k":0.15,"e8":"5411786072900","e13":"5411786072917"},{"c":827,"d":"MS CHIARE 100'S*AST20","s":"SIGARETTE","p":6.2,"k":0.2,"e8":"80782254","e13":"8027463208271"},{"c":18,"d":"MS CLASSIC SOFT*CART20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80883234","e13":"8027463200183"},{"c":3453,"d":"MS TABACCO TRINCIATO 30*30GR","s":"TRINCIATI","p":7.8,"k":0.24,"e8":"80971252","e13":"5999096403534"},{"c":574,"d":"MURATTI AMBASSADOR AZURE KS*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"87248043","e13":"8724800003673"},{"c":560,"d":"MURATTI AMBASSADOR BLUE KS*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"87248098","e13":"8724800003680"},{"c":876,"d":"MURATTI AMBASSADOR SILVER KS*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"87248029","e13":"8724800003666"},{"c":951,"d":"MURATTI AZURE 100S*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"87248692","e13":"4023500001090"},{"c":952,"d":"MURATTI RED 100S*AST20","s":"SIGARETTE","p":6.8,"k":0.2,"e8":"87248654","e13":"4023500001106"},{"c":3956,"d":"NEO STICK GOLDEN TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":4.3,"k":0.2,"e8":"80973423","e13":"8027463003890"},{"c":21646,"d":"NEO STICKS AZURE*20PZ","s":"TABACCHI DA INALAZIONE","p":3.8,"k":0.2,"e8":"80845287","e13":"8027463019648"},{"c":3871,"d":"NEO STICKS CLASSIC TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":4.3,"k":0.2,"e8":"59478393","e13":"5942425005886"},{"c":20210,"d":"NEO STICKS RICH TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":4.3,"k":0.2,"e8":"80816362","e13":"8027463006440"},{"c":20209,"d":"NEO STICKS SMOOTH TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":4.3,"k":0.2,"e8":"80882619","e13":"8027463006471"},{"c":3872,"d":"NEO STICKS TERRACOTTA TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":4.3,"k":0.2,"e8":"59478416","e13":"5942425005909"},{"c":1672,"d":"NEWS RED*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"4030600284056","e13":"4030600284063"},{"c":3622,"d":"NO NAME AUTHENTIC*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"5707294395342","e13":"5707294415101"},{"c":2553,"d":"NO NAME BLACK*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"5707294395250","e13":"5707294415064"},{"c":3585,"d":"NO NAME PINK*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"5707294395229","e13":"5707294415088"},{"c":20467,"d":"NO NAME RED*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"5707294395373","e13":"5707294415026"},{"c":3708,"d":"NO NAME RISERVA NO.1*30GR","s":"TRINCIATI","p":6.5,"k":0.3,"e8":"5707294334105","e13":"5707904334112"},{"c":2554,"d":"NO NAME VIRGINIA*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"5707294395311","e13":"5707294415040"},{"c":2754,"d":"NO NAME WHITE 50GR*50GR","s":"TRINCIATI","p":11.5,"k":0.25,"e8":"5707294349376","e13":"5707294349376"},{"c":2552,"d":"NO NAME WHITE*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"5707294395281","e13":"5710840303463"},{"c":3977,"d":"NOLOGO ARANCIONE*20PZ","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8033254845945","e13":"8033254845976"},{"c":3978,"d":"NOLOGO GIALLA*20PZ","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8033254845952","e13":"8033254845983"},{"c":3979,"d":"NOLOGO VERDE*20PZ","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8033254845969","e13":"8033254845990"},{"c":20428,"d":"NUSO BEACH*20PZ","s":"TABACCHI DA INALAZIONE","p":4.0,"k":0.2,"e8":"4897102640199","e13":"8990082092180"},{"c":20063,"d":"NUSO BLUE*20PZ","s":"TABACCHI DA INALAZIONE","p":4.0,"k":0.2,"e8":"4897102640113","e13":"8990082092142"},{"c":20059,"d":"NUSO BROWN*20PZ","s":"TABACCHI DA INALAZIONE","p":4.0,"k":0.2,"e8":"","e13":"8990082092104"},{"c":20057,"d":"NUSO YELLOW*20PZ","s":"TABACCHI DA INALAZIONE","p":4.0,"k":0.2,"e8":"4897102640090","e13":"4897102640106"},{"c":3456,"d":"OLD HOLBORN BLONDE*30GR","s":"TRINCIATI","p":8.3,"k":0.3,"e8":"80842675","e13":"8051160714070"},{"c":3455,"d":"OLD HOLBORN YELLOW*30GR","s":"TRINCIATI","p":8.3,"k":0.3,"e8":"80834304","e13":"8051160714056"},{"c":3454,"d":"OLD HOLBORN*30GR","s":"TRINCIATI","p":8.3,"k":0.3,"e8":"80828549","e13":"8051160714032"},{"c":1788,"d":"PETER STUYVESANT GOLD 100'S*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"4030600283967","e13":"4030600283974"},{"c":352,"d":"PETER STUYVESANT GOLD*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"4030600283936","e13":"4030600283943"},{"c":547,"d":"PETER STUYVESANT ORIGINAL 100'S*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"4030600283905","e13":"4030600283912"},{"c":348,"d":"PETER STUYVESANT ORIGINAL*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"4030600283875","e13":"4030600283882"},{"c":2694,"d":"PHILIP MORRIS AZURE*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80974581","e13":"8032817680665"},{"c":2816,"d":"PHILIP MORRIS AZURE100'S*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80787495","e13":"8032817680825"},{"c":2815,"d":"PHILIP MORRIS BLUE 100'S*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80900627","e13":"8032817680689"},{"c":3493,"d":"PHILIP MORRIS BLUE*30GR","s":"TRINCIATI","p":7.9,"k":0.3,"e8":"8032817681761","e13":"8056897051542"},{"c":2602,"d":"PHILIP MORRIS BLUE*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80905271","e13":"8032817680580"},{"c":3220,"d":"PHILIP MORRIS BLUE*CART20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80799634","e13":"8032817681303"},{"c":3219,"d":"PHILIP MORRIS FILTER KINGS 100'S*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"87248517","e13":"8724800001945"},{"c":553,"d":"PHILIP MORRIS FILTER KINGS*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80809128","e13":"8032817681327"},{"c":2603,"d":"PHILIP MORRIS RED*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80784975","e13":"8032817680535"},{"c":3218,"d":"PHILIP MORRIS RED*CART20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80765257","e13":"8032817681310"},{"c":3337,"d":"PHILIP MORRIS SSL BEIGE*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80824534","e13":"8032817681488"},{"c":3221,"d":"PHILIP MORRIS SSL BLUE*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80799696","e13":"8032817681297"},{"c":3492,"d":"PHILIP MORRIS VOLUME TOBACCO*30GR","s":"TRINCIATI","p":7.9,"k":0.18,"e8":"8032817681648","e13":"8032817681655"},{"c":2695,"d":"PHILIP MORRIS WHITE*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80910503","e13":"8032817680658"},{"c":3650,"d":"PUEBLO BLUE 70*70GR","s":"TRINCIATI","p":18.6,"k":0.35,"e8":"42303947","e13":"4002450029033"},{"c":2824,"d":"PUEBLO BLUE*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"42301493","e13":"4002450023543"},{"c":2181,"d":"PUEBLO BLUE*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"42302018","e13":"4002450071964"},{"c":2281,"d":"PUEBLO BURLEY BLEND*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"42301486","e13":"4002450023581"},{"c":2774,"d":"PUEBLO CLASSIC 70*70GR","s":"TRINCIATI","p":18.6,"k":0.35,"e8":"42302452","e13":"4002450029064"},{"c":1927,"d":"PUEBLO CLASSIC*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"42302919","e13":"4002450023369"},{"c":2099,"d":"PUEBLO CLASSIC*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"42302001","e13":"4002450071919"},{"c":2885,"d":"PUEBLO GT*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"42302025","e13":"4002450071865"},{"c":3058,"d":"PUEBLO ORANGE*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"42302032","e13":"4002450071810"},{"c":20215,"d":"PUEBLO PINK*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"42434559","e13":"4002450027367"},{"c":3481,"d":"R&W 30 G*30GR","s":"TRINCIATI","p":7.8,"k":0.3,"e8":"5707294291231","e13":"5707294291248"},{"c":3690,"d":"RED HOUSE*30GR","s":"TRINCIATI","p":6.0,"k":0.3,"e8":"","e13":"8710151609084"},{"c":3586,"d":"ROLL YOUR OWN AMERICAN BLEND BLOND*30GR","s":"TRINCIATI","p":6.4,"k":0.3,"e8":"5707294245272","e13":"5707294245289"},{"c":3584,"d":"ROLL YOUR OWN HALFZWARE SHAG BLUE*30GR","s":"TRINCIATI","p":6.4,"k":0.3,"e8":"5707294245302","e13":"5707294245319"},{"c":20412,"d":"ROTHMANS ESSENCE BLUE 100'S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80829508","e13":"8027463007089"},{"c":3606,"d":"ROTHMANS ESSENCE BLUE KING SIZE*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"80799481","e13":"5000219012851"},{"c":3009,"d":"ROTHMANS ESSENCE BLUE KING SIZE*CART20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"80951094","e13":"5000219024014"},{"c":3008,"d":"ROTHMANS ESSENCE RED*CART20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"80872313","e13":"5000219023994"},{"c":3607,"d":"ROTHMANS ESSENCE SILVER KING SIZE*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"80780564","e13":"5000219012868"},{"c":3059,"d":"ROTHMANS ESSENCE SILVER KING SIZE*CART20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"80826712","e13":"5000219024038"},{"c":3948,"d":"ROTHMANS OF LON. SURROUND KING S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80800583","e13":"8027463201081"},{"c":3503,"d":"ROTHMANS OF LOND. SENSORA D-SERIES*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80871200","e13":"8027463002367"},{"c":2879,"d":"ROTHMANS OF LONDON BLUE 100*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80859123","e13":"5000219023734"},{"c":2652,"d":"ROTHMANS OF LONDON BLUE 20*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"59460626","e13":"5948530003861"},{"c":2270,"d":"ROTHMANS OF LONDON D-SERIES*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"59038306","e13":"5903141007790"},{"c":2878,"d":"ROTHMANS OF LONDON RED 100'S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80769484","e13":"5000219023710"},{"c":2860,"d":"ROTHMANS OF LONDON RED 20*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80936671","e13":"5000219023659"},{"c":3010,"d":"ROTHMANS OF LONDON S-SERIES BLUE*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80899907","e13":"5000219023918"},{"c":3011,"d":"ROTHMANS OF LONDON S-SERIES SILVER*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80899976","e13":"5000219023932"},{"c":20390,"d":"ROTHMANS OF LONDON S-SERIES WHITE*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80829539","e13":"8027463007188"},{"c":2880,"d":"ROTHMANS OF LONDON SILVER 100*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80822769","e13":"5000219023758"},{"c":2654,"d":"ROTHMANS OF LONDON SILVER 20*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"59460633","e13":"5948530003878"},{"c":3452,"d":"ROTHMANS OF LONDON VOLUME TOBACCO 30*30G","s":"TRINCIATI","p":7.8,"k":0.24,"e8":"80957959","e13":"5999096404678"},{"c":3662,"d":"ROTHMANS OF LONDON WHITE 100*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80978596","e13":"5000219134102"},{"c":3012,"d":"ROTHMANS OF LONDON WHITE 20'S*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80901990","e13":"5000219023895"},{"c":21708,"d":"ROTHMANS RED ESSENCE KING SIZE*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"80915133","e13":"8027463017224"},{"c":3659,"d":"SAUVAGE BLOND 30G*30GR","s":"TRINCIATI","p":7.9,"k":0.3,"e8":"5411786058102","e13":"5411786058119"},{"c":3813,"d":"STANLEY MASTER BLEND*30GR","s":"TRINCIATI","p":6.5,"k":0.3,"e8":"5414622821304","e13":""},{"c":20146,"d":"TEREA AMBER*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80967231","e13":"8032817684700"},{"c":20659,"d":"TEREA AZURE*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80912521","e13":"8056897052433"},{"c":20148,"d":"TEREA BRONZE*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80968665","e13":"8032817684670"},{"c":20785,"d":"TEREA CLOUD FUSE*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80805953","e13":"8032817688135"},{"c":21175,"d":"TEREA DORE*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80821632","e13":"8056897050194"},{"c":21270,"d":"TEREA KHAKI*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80821670","e13":"8056897050521"},{"c":21174,"d":"TEREA KONA*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80821625","e13":"8056897050187"},{"c":20150,"d":"TEREA RUSSET*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80872207","e13":"8032817684663"},{"c":20151,"d":"TEREA SIENNA*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80921653","e13":"8032817684687"},{"c":20152,"d":"TEREA SILVER*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80954354","e13":"8032817685868"},{"c":20153,"d":"TEREA TEAK*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80829164","e13":"8032817684694"},{"c":20154,"d":"TEREA TURQUOSE*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80895053","e13":"8032817684755"},{"c":20155,"d":"TEREA YELLOW*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80980698","e13":"8032817684717"},{"c":3176,"d":"THE KING BLUE 100'S*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"3800162410412","e13":"3800162410429"},{"c":3183,"d":"THE KING BLUE*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"3800162410382","e13":"3800162410399"},{"c":3178,"d":"THE KING RED 100S*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"3800162410474","e13":"3800162410481"},{"c":3184,"d":"THE KING RED*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"3800162410443","e13":"3800162410450"},{"c":3535,"d":"THE KING SILVER 100'S*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"3800162410535","e13":"3800162410542"},{"c":3534,"d":"THE KING SILVER*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"3800162410504","e13":"3800162410511"},{"c":3748,"d":"THE KING SSL LINE BLUE*20PZ","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"3800162410566","e13":"3800162410573"},{"c":3747,"d":"THE KING SSL LINE WHITE*20PZ","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"3800162410597","e13":"3800162410603"},{"c":21120,"d":"THE KING SSL STORM*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"3800162435552","e13":"3800162435569"},{"c":3678,"d":"THE KING STORM 100'S*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"3800162411945","e13":"3800162411952"},{"c":21259,"d":"THE KING STORM*AST20","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"3800162418371","e13":"3800162418388"},{"c":930,"d":"TILBURY AMERICAN BLEND*40GR","s":"TRINCIATI","p":9.8,"k":0.4,"e8":"42302674","e13":"4002450020078"},{"c":20847,"d":"UNICCO HAMI MELON*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"6972537013454","e13":"6972537013447"},{"c":20848,"d":"UNICCO ORANGE*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"6972537013515","e13":"6972537013508"},{"c":20849,"d":"UNICCO ORIGINAL*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"6972537013492","e13":"6972537013522"},{"c":20850,"d":"UNICCO STRONG MENTHOL*20PZ","s":"TABACCHI DA INALAZIONE","p":4.5,"k":0.2,"e8":"6972537013539","e13":"6972537013485"},{"c":21173,"d":"VEO STICKS AMBER CLICK*20PZ","s":"TABACCHI DA INALAZIONE","p":4.3,"k":0.2,"e8":"80894438","e13":"8027463014674"},{"c":20786,"d":"VEO STICKS ARCTIC CLICK*20PZ","s":"TABACCHI DA INALAZIONE","p":4.3,"k":0.2,"e8":"80845218","e13":"8027463012373"},{"c":20787,"d":"VEO STICKS BERYL CLICK*20PZ","s":"TABACCHI DA INALAZIONE","p":4.3,"k":0.2,"e8":"80841562","e13":"8027463012366"},{"c":20788,"d":"VEO STICKS PURPLE CLICK*20PZ","s":"TABACCHI DA INALAZIONE","p":4.3,"k":0.2,"e8":"80882350","e13":"8027463012342"},{"c":20789,"d":"VEO STICKS SCARLET CLICK*20PZ","s":"TABACCHI DA INALAZIONE","p":4.3,"k":0.2,"e8":"80859376","e13":"8027463012359"},{"c":20790,"d":"VEO STICKS TROPIC CLICK*20PZ","s":"TABACCHI DA INALAZIONE","p":4.3,"k":0.2,"e8":"80871255","e13":"8027463012335"},{"c":21641,"d":"VIRTO STICKS AZURE TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80829560","e13":"8886309309639"},{"c":21642,"d":"VIRTO STICKS BALANCED TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80967781","e13":"8027463019563"},{"c":21643,"d":"VIRTO STICKS CLASSIC TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80967767","e13":"8886309309615"},{"c":21644,"d":"VIRTO STICKS COPPER TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80947424","e13":"8886309309622"},{"c":21645,"d":"VIRTO STICKS SIGNATURE TOBACCO*20PZ","s":"TABACCHI DA INALAZIONE","p":5.5,"k":0.2,"e8":"80947417","e13":"8027463019532"},{"c":600,"d":"VOGUE BLEUE*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"40313726","e13":"4031300006566"},{"c":544,"d":"VOGUE CLASSIQUE LONG BLEUE*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"40313030","e13":"4031300003084"},{"c":292,"d":"VOGUE LILAS*AST20","s":"SIGARETTE","p":6.0,"k":0.2,"e8":"40318431","e13":"4031300009499"},{"c":3839,"d":"WEST BLUE 100S*AST20","s":"SIGARETTE","p":5.0,"k":0.2,"e8":"4030600283424","e13":"4030600283431"},{"c":21033,"d":"WEST BLUE SSL-LINE*AST20","s":"SIGARETTE","p":5.0,"k":0.2,"e8":"4030600321560","e13":"4030600322178"},{"c":1635,"d":"WEST BLUE*AST20","s":"SIGARETTE","p":5.0,"k":0.2,"e8":"4030600283394","e13":"4030600283400"},{"c":3840,"d":"WEST ORIGINAL 100S*AST20","s":"SIGARETTE","p":5.0,"k":0.2,"e8":"4030600283363","e13":"4030600283370"},{"c":1634,"d":"WEST ORIGINAL*AST20","s":"SIGARETTE","p":5.0,"k":0.2,"e8":"4030600283332","e13":"4030600283349"},{"c":20927,"d":"WEST SILVER*20PZ","s":"SIGARETTE","p":5.0,"k":0.2,"e8":"4030600266137","e13":"4030600266144"},{"c":1784,"d":"WINSTON BLUE 100S*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80851462","e13":"8051160714230"},{"c":2065,"d":"WINSTON BLUE SUPER LINE*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80815150","e13":"8051160714537"},{"c":3461,"d":"WINSTON BLUE*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"80813408","e13":"8051160714179"},{"c":3758,"d":"WINSTON BLUE*45GR","s":"TRINCIATI","p":12.4,"k":0.225,"e8":"8051160710126","e13":"8051160710133"},{"c":338,"d":"WINSTON BLUE*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80802730","e13":"8051160714438"},{"c":1733,"d":"WINSTON BLUE*CART20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80824121","e13":"8051160714759"},{"c":20041,"d":"WINSTON COMPACT*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80817772","e13":"8051160711871"},{"c":20226,"d":"WINSTON EXPAND*20PZ","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80824961","e13":"8051160714490"},{"c":21459,"d":"WINSTON JUST BLUE*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80804468","e13":"8051160713875"},{"c":21460,"d":"WINSTON JUST RED*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80996590","e13":"8051160713899"},{"c":1783,"d":"WINSTON RED 100S*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80993407","e13":"8051160714216"},{"c":3460,"d":"WINSTON RED*30GR","s":"TRINCIATI","p":8.0,"k":0.3,"e8":"80876311","e13":"8051160714193"},{"c":91,"d":"WINSTON RED*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80828594","e13":"8051160714452"},{"c":245,"d":"WINSTON RED*CART20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80802709","e13":"8051160714735"},{"c":20648,"d":"WINSTON SHORT BLUE*AST20","s":"SIGARETTE","p":5.5,"k":0.2,"e8":"80828532","e13":"8051160713134"},{"c":2296,"d":"WINSTON SILVER 100S*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80802754","e13":"8051160714254"},{"c":2066,"d":"WINSTON SILVER SUPER LINE*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80896203","e13":"8051160714551"},{"c":134,"d":"WINSTON SILVER*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80945345","e13":"8051160714476"},{"c":3467,"d":"WINSTON WHITE SUPER LINE*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80813453","e13":"8051160714575"},{"c":1248,"d":"WINSTON WHITE*AST20","s":"SIGARETTE","p":5.8,"k":0.2,"e8":"80941866","e13":"8051160714513"},{"c":3040,"d":"WINSTON*50GR","s":"TRINCIATI","p":14.0,"k":0.25,"e8":"8051160714001","e13":"8051160714018"},{"c":3803,"d":"YESMOKE AMERICAN BLEND*30GR","s":"TRINCIATI","p":7.2,"k":0.15,"e8":"8033254847994","e13":"8033254847888"},{"c":2341,"d":"YESMOKE BLACK*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"8054045440972","e13":"8054045440989"},{"c":2262,"d":"YESMOKE BLUE*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"8054045440859","e13":"8054045440866"},{"c":20211,"d":"YESMOKE PLANET*20PZ","s":"SIGARETTE","p":5.2,"k":0.2,"e8":"8054045440811","e13":"8054045440828"},{"c":2069,"d":"YESMOKE RED*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"8054045440736","e13":"8054045440743"},{"c":2682,"d":"YESMOKE SILVER*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"8054045440934","e13":"8054045440941"},{"c":3804,"d":"YESMOKE VIRGINIA & BURLEY*30GR","s":"TRINCIATI","p":7.2,"k":0.15,"e8":"8033254847987","e13":"8033254847864"},{"c":2072,"d":"YESMOKE WHITE RED*AST20","s":"SIGARETTE","p":5.4,"k":0.2,"e8":"8054045440897","e13":"8054045440903"}]
+;
+PROD.push({"c": 900001, "d": "GIZEH KIT CARTINE KING BLACK + CLIPPER", "s": "ACCESSORI", "p": 3.5, "k": 0, "e8": "", "e13": ""});
+const P=new Map(PROD.map(p=>[p.c,p]));
+const byEan=new Map(); for(const p of PROD){ if(p.e8) byEan.set(p.e8,p); if(p.e13) byEan.set(p.e13,p); }
+const $=s=>document.querySelector(s);
+const eur=n=>(n||0).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+const oggi=()=>new Date().toISOString().slice(0,10);
+let DB={st:{},mov:[],soglia:5,slot:[],utenti:[],cfg:null};   // st[cod]={m:stecche, s:pacchetti scaffale}; slot[]={n,c,q}
+const INIT_MAG={};
+const INIT_SLOT=[{"n": 1, "c": 2658, "nome": "MARLBORO GOLD POCKET PACK", "q": 0}, {"n": 2, "c": 3840, "nome": "WEST ORIGINAL 100S", "q": 0}, {"n": 3, "c": 3013, "nome": "BENSON&HEDGES RED 100", "q": 0}, {"n": 4, "c": 3014, "nome": "BENSON&HEDGES BLUE 100", "q": 0}, {"n": 5, "c": 2981, "nome": "BENSON&HEDGES RED", "q": 0}, {"n": 6, "c": 20785, "nome": "TEREA CLOUD FUSE", "q": 0}, {"n": 7, "c": 2652, "nome": "ROTHMANS OF LONDON BLUE 20", "q": 0}, {"n": 8, "c": 3010, "nome": "ROTHMANS OF LONDON S SERIES BLUE", "q": 0}, {"n": 9, "c": 21036, "nome": "MARLBORO CRAFTED RED 100S", "q": 0}, {"n": 10, "c": 21037, "nome": "MARLBORO CRAFTED GOLD 100S", "q": 0}, {"n": 11, "c": 20150, "nome": "TEREA RUSSET", "q": 0}, {"n": 12, "c": 20148, "nome": "TEREA BRONZE", "q": 0}, {"n": 13, "c": 2652, "nome": "ROTHMANS OF LONDON BLUE 20", "q": 0}, {"n": 14, "c": 3839, "nome": "WEST BLUE 100S", "q": 0}, {"n": 15, "c": 2879, "nome": "ROTHMANS OF LONDON BLUE 100", "q": 0}, {"n": 16, "c": 3014, "nome": "BENSON&HEDGES BLUE 100", "q": 0}, {"n": 17, "c": 3606, "nome": "ROTHMANS ESSENCE BLUE", "q": 0}, {"n": 18, "c": 2860, "nome": "ROTHMANS CLASSIC RED 20", "q": 0}, {"n": 19, "c": 2982, "nome": "BENSON&HEDGES BLUE", "q": 0}, {"n": 20, "c": 478, "nome": "CAMEL BLUE", "q": 0}, {"n": 21, "c": 3907, "nome": "MARLBORO CRAFTED RED", "q": 0}, {"n": 22, "c": 2878, "nome": "ROTHMANS CLASSIC RED 100", "q": 0}, {"n": 23, "c": 3011, "nome": "ROTHMANS OF LONDON S SERIES SILVER", "q": 0}, {"n": 24, "c": 900001, "nome": "GIZEH KIT CARTINE KING BLACK + CLIPPER", "q": 0}, {"n": 25, "c": 1634, "nome": "WEST RED 20", "q": 0}, {"n": 26, "c": 2423, "nome": "MERIT BAY KS", "q": 0}, {"n": 27, "c": 20151, "nome": "TEREA SIENNA", "q": 0}, {"n": 28, "c": 3495, "nome": "MARLBORO GOLD 30G", "q": 0}, {"n": 29, "c": 3461, "nome": "WINSTON BLUE 30G", "q": 0}, {"n": 30, "c": 900001, "nome": "GIZEH KIT CARTINE KING BLACK + CLIPPER", "q": 0}, {"n": 31, "c": 21108, "nome": "DELIA CLASSIC GOLD", "q": 0}, {"n": 32, "c": 3458, "nome": "CAMEL BLUE 30G", "q": 0}, {"n": 33, "c": 1927, "nome": "PUEBLO 30G", "q": 0}, {"n": 34, "c": 546, "nome": "CAMEL BLUE 100'S", "q": 0}, {"n": 35, "c": 20153, "nome": "TEREA TEAK", "q": 0}, {"n": 36, "c": 3113, "nome": "CHESTERFIELD RED 100'S", "q": 0}, {"n": 37, "c": 1635, "nome": "WEST BLUE 20", "q": 0}, {"n": 38, "c": 1784, "nome": "WINSTON BLUE 100'S", "q": 0}, {"n": 39, "c": 618, "nome": "MARLBORO GOLD KS", "q": 0}, {"n": 40, "c": 20152, "nome": "TEREA SILVER", "q": 0}, {"n": 41, "c": 20146, "nome": "TEREA AMBER", "q": 0}, {"n": 42, "c": 20659, "nome": "TEREA AZURE", "q": 0}, {"n": 43, "c": 20154, "nome": "TEREA TURQUOISE", "q": 0}, {"n": 44, "c": 632, "nome": "CAMEL BLUE", "q": 0}, {"n": 45, "c": 338, "nome": "WINSTON BLUE", "q": 0}, {"n": 46, "c": 201, "nome": "CHESTERFIELD BLUE KS", "q": 0}, {"n": 47, "c": 96, "nome": "CHESTERFIELD ORIGINAL KS", "q": 0}, {"n": 48, "c": 396, "nome": "MARLBORO KS", "q": 0}, {"n": 49, "c": 3906, "nome": "MARLBORO CRAFTED GOLD", "q": 0}, {"n": 50, "c": 997, "nome": "MERIT GIALLA KS", "q": 0}, {"n": 51, "c": 395, "nome": "MARLBORO KS", "q": 0}, {"n": 52, "c": 9, "nome": "MARLBORO GOLD KS", "q": 0}];
+let unita='stecca';
+
+function box(c){ if(!DB.st[c]) DB.st[c]={m:0,s:0}; return DB.st[c]; }
+const tot=c=>{const b=DB.st[c]; return b? b.m*10+b.s : 0;};
+
+function applicaIniziali(){
+  if(!DB.slot || !DB.slot.length) DB.slot=JSON.parse(JSON.stringify(INIT_SLOT));
+  else if(DB.slot.every(s=>!s.q)){                       // slot presenti ma tutti a zero
+    const q={}; INIT_SLOT.forEach(s=>q[s.n]=s.q);
+    DB.slot.forEach(s=>{ if(q[s.n]!==undefined) s.q=q[s.n]; });
+  }
+  if(!Object.keys(DB.st).length) for(const c in INIT_MAG) DB.st[c]={m:INIT_MAG[c],s:0};
+}
+async function load(){
+  let raw=null;
+  try{ if(window.storage){ const r=await window.storage.get('mk2:mag2'); if(r&&r.value) raw=r.value; } }catch(e){}
+  if(!raw){ try{ raw=localStorage.getItem('mk2:mag2'); }catch(e){} }
+  if(raw){ DB=JSON.parse(raw); applicaIniziali(); return; }
+  // recupero dalla versione precedente, che contava solo pacchetti
+  let old=null;
+  try{ if(window.storage){ const r=await window.storage.get('mk2:mag'); if(r&&r.value) old=r.value; } }catch(e){}
+  if(!old){ try{ old=localStorage.getItem('mk2:mag'); }catch(e){} }
+  if(old){ const o=JSON.parse(old); DB={st:{},mov:o.mov||[],soglia:o.soglia||5,slot:[]};
+    for(const c in (o.stock||{})) DB.st[c]={m:0,s:o.stock[c]}; }
+  applicaIniziali();
+}
+async function save(){
+  const s=JSON.stringify(DB);
+  try{ if(window.storage){ await window.storage.set('mk2:mag2',s); return; } }catch(e){}
+  try{ localStorage.setItem('mk2:mag2',s); }catch(e){ toast('Salvataggio non riuscito','bad'); }
+}
+function toast(m,k){const t=$('#toast');t.textContent=m;t.style.background=k==='bad'?'var(--bad)':'var(--good)';
+  t.style.color='#fff';t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',2000);}
+function beep(){ try{navigator.vibrate&&navigator.vibrate(35);}catch(e){} }
+function cerca(q,lim){
+  q=(q||'').trim().toLowerCase(); if(q.length<2) return [];
+  const ean=q.replace(/\D/g,'');
+  if(ean.length>=8&&byEan.has(ean)) return [byEan.get(ean)];
+  const w=q.split(/\s+/);
+  return PROD.filter(p=>{const d=p.d.toLowerCase(); return w.every(x=>d.includes(x));}).slice(0,lim||40);
+}
+function carica(p){
+  const b=box(p.c);
+  if(unita==='stecca'){ b.m++; DB.mov.push({d:oggi(),c:p.c,t:'car',q:10}); toast(p.d+' · +1 stecca'); }
+  else { b.s++; DB.mov.push({d:oggi(),c:p.c,t:'car',q:1}); toast(p.d+' · +1 pacchetto'); }
+  save(); beep(); render();
+}
+$('#seg_car').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  unita=b.dataset.u;
+  $('#seg_car').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed', x===b));
+});
+$('#q_car').addEventListener('input', e=>{
+  const v=e.target.value, hits=cerca(v,40), ean=v.replace(/\D/g,'');
+  if(ean.length>=8&&hits.length===1){ e.target.value=''; $('#r_car').innerHTML=''; carica(hits[0]); return; }
+  $('#r_car').innerHTML=hits.map(p=>{const b=DB.st[p.c]||{m:0,s:0};
+    return `<div class="hit" data-c="${p.c}"><b>${p.d}</b><span>cod. ${p.c} · ${eur(p.p)} · ${b.m} stecche + ${b.s} pacchetti</span></div>`;}).join('');
+  $('#r_car').querySelectorAll('.hit').forEach(h=>h.onclick=()=>carica(P.get(+h.dataset.c)));
+});
+// --- apertura stecche ---
+function listaSca(f){
+  f=(f||'').toLowerCase();
+  const arr=Object.keys(DB.st).map(Number).map(c=>P.get(c)).filter(Boolean)
+    .filter(p=>!f||p.d.toLowerCase().includes(f)).filter(p=>DB.st[p.c].m>0||DB.st[p.c].s>0)
+    .sort((a,b)=>DB.st[b.c].m-DB.st[a.c].m);
+  $('#l_sca').innerHTML=arr.length? arr.map(p=>{const b=DB.st[p.c];
+    return `<div class="line" style="grid-template-columns:1fr auto"><div><div class="d">${p.d}</div>
+      <div class="m num">${b.m} stecche · ${b.s} pacchetti a scaffale</div></div>
+      <div class="move"><button data-c="${p.c}" data-n="1">Apri 1</button><button data-c="${p.c}" data-n="2">2</button></div></div>`;}).join('')
+    : '<p class="hint">Nessun prodotto in magazzino.</p>';
+  $('#l_sca').querySelectorAll('.move button').forEach(b=>b.onclick=async()=>{
+    const c=+b.dataset.c, n=+b.dataset.n, bx=box(c);
+    if(bx.m<n){ toast('Non hai abbastanza stecche','bad'); return; }
+    bx.m-=n; bx.s+=n*10; DB.mov.push({d:oggi(),c,t:'apr',q:n*10});
+    await save(); render(); beep(); toast(P.get(c).d+' · '+(n*10)+' pacchetti a scaffale');
+  });
+}
+$('#q_sca').addEventListener('input',e=>listaSca(e.target.value));
+// --- conta serale ---
+function listaConta(f){
+  f=(f||'').toLowerCase();
+  const arr=Object.keys(DB.st).map(Number).map(c=>P.get(c)).filter(Boolean)
+    .filter(p=>!f||p.d.toLowerCase().includes(f)).filter(p=>tot(p.c)>0||DB.mov.some(m=>m.c===p.c&&m.d===oggi()))
+    .sort((a,b)=>a.d.localeCompare(b.d));
+  $('#l_con').innerHTML=arr.length? arr.map(p=>{const b=DB.st[p.c];
+    return `<div class="line"><div><div class="d">${p.d}</div><div class="m num">attesi ${b.s} pacch. · ${b.m} stecche</div></div>
+      <input type="number" inputmode="numeric" min="0" data-c="${p.c}" data-k="s" placeholder="${b.s}" aria-label="pacchetti di ${p.d}">
+      <input type="number" inputmode="numeric" min="0" data-c="${p.c}" data-k="m" placeholder="${b.m}" aria-label="stecche di ${p.d}"></div>`;}).join('')
+    : '<p class="hint">Prima carica qualcosa.</p>';
+}
+$('#q_con').addEventListener('input',e=>listaConta(e.target.value));
+$('#salva_conta').onclick=async()=>{
+  const ins=[...$('#l_con').querySelectorAll('input')].filter(i=>i.value!=='');
+  if(!ins.length){ toast('Non hai contato niente','bad'); return; }
+  const conta={};
+  ins.forEach(i=>{ const c=+i.dataset.c; conta[c]=conta[c]||{}; conta[c][i.dataset.k]=Math.max(0,parseInt(i.value,10)||0); });
+  let vend=0, corr=0;
+  for(const c in conta){
+    const b=box(c), n=conta[c];
+    const primaP=b.m*10+b.s;
+    if(n.s!==undefined) b.s=n.s;
+    if(n.m!==undefined) b.m=n.m;
+    const dopoP=b.m*10+b.s, diff=primaP-dopoP;
+    if(diff!==0){ DB.mov.push({d:oggi(),c:+c,t:'dif',q:diff}); vend+=Math.abs(diff); corr++; }
+  }
+  await save(); render();
+  toast(corr? corr+' prodotti non tornavano, per '+vend+' pacchetti' : 'Tutto quadra: conteggio confermato');
+};
+// --- giacenze ---
+function listaGiac(f){
+  f=(f||'').toLowerCase();
+  const arr=Object.keys(DB.st).map(Number).map(c=>P.get(c)).filter(Boolean)
+    .filter(p=>!f||p.d.toLowerCase().includes(f)).sort((a,b)=>tot(b.c)-tot(a.c));
+  $('#l_gia').innerHTML=arr.length? arr.map(p=>{const b=DB.st[p.c], t=tot(p.c);
+    return `<div class="line"><div><div class="d">${p.d}${t<DB.soglia?'<span class="pill">da riordinare</span>':''}</div>
+      <div class="m num">${t} pacchetti · ${eur(t*p.p)}</div></div>
+      <input type="number" inputmode="numeric" min="0" value="${b.s}" data-c="${p.c}" data-k="s" aria-label="pacchetti di ${p.d}">
+      <input type="number" inputmode="numeric" min="0" value="${b.m}" data-c="${p.c}" data-k="m" aria-label="stecche di ${p.d}"></div>`;}).join('')
+    : '<p class="hint">Magazzino vuoto. Fai l\'inventario iniziale dalla scheda Carico.</p>';
+  $('#l_gia').querySelectorAll('input').forEach(i=>i.onchange=async()=>{
+    box(+i.dataset.c)[i.dataset.k]=Math.max(0,parseInt(i.value,10)||0); await save(); render(); toast('Giacenza corretta');
+  });
+}
+$('#q_gia').addEventListener('input',e=>listaGiac(e.target.value));
+
+
+// ================= accesso, utenti, impostazioni =================
+let io=null;                                   // chi sta usando il gestionale adesso
+function mostraGate(quale){
+  $('#gate').classList.add('on');
+  $('#g_reg').style.display = quale==='reg'?'block':'none';
+  $('#g_log').style.display = quale==='log'?'block':'none';
+  if(quale==='log'){
+    $('#l_tit').textContent = DB.cfg && DB.cfg.att ? DB.cfg.att : 'Accedi';
+    $('#l_utenti').innerHTML = DB.utenti.map(u=>`<button data-id="${u.id}" aria-pressed="false">${u.nome}</button>`).join('');
+    let sel = DB.utenti.length===1 ? DB.utenti[0].id : null;
+    const bs=$('#l_utenti').querySelectorAll('button');
+    bs.forEach(b=>{ if(+b.dataset.id===sel) b.setAttribute('aria-pressed','true');
+      b.onclick=()=>{ sel=+b.dataset.id; bs.forEach(x=>x.setAttribute('aria-pressed', x===b)); $('#l_pin').focus(); }; });
+    $('#l_ok').onclick=async()=>{
+      const u=DB.utenti.find(x=>x.id===sel);
+      if(!u){ $('#l_err').textContent='Scegli chi sei.'; return; }
+      if($('#l_pin').value!==u.pin){ $('#l_err').textContent='PIN sbagliato.'; $('#l_pin').value=''; return; }
+      io=u; $('#l_pin').value=''; $('#l_err').textContent='';
+      $('#gate').classList.remove('on'); avvia();
+    };
+    $('#l_pin').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#l_ok').click(); });
+  }
+}
+$('#r_ok').onclick=async()=>{
+  const att=$('#r_att').value.trim()||'La mia tabaccheria', nome=$('#r_nome').value.trim(), pin=$('#r_pin').value.trim();
+  if(!nome){ toast('Scrivi il tuo nome','bad'); return; }
+  if(!/^\d{4}$/.test(pin)){ toast('Il PIN deve essere di 4 cifre','bad'); return; }
+  DB.cfg={att, riv:$('#r_riv').value.trim(), creato:oggi()};
+  DB.utenti=[{id:1, nome, pin, ruolo:'titolare'}];
+  io=DB.utenti[0];
+  await save(); $('#gate').classList.remove('on'); avvia(); toast('Benvenuto '+nome);
+};
+function permessi(){
+  const tit = io && io.ruolo==='titolare';
+  $('#tab_imp').style.display = tit ? '' : 'none';
+  $('#chi').textContent = io ? (DB.cfg&&DB.cfg.att?DB.cfg.att+' · ':'')+io.nome+(tit?' (titolare)':'') : '';
+}
+function listaUtenti(){
+  $('#i_utenti').innerHTML = DB.utenti.map(u=>
+    `<div class="line" style="grid-template-columns:1fr auto"><div><div class="d">${u.nome}</div>
+     <div class="m">${u.ruolo}</div></div>
+     ${DB.utenti.length>1?`<div class="move"><button data-id="${u.id}">Rimuovi</button></div>`:''}</div>`).join('');
+  $('#i_utenti').querySelectorAll('.move button').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Rimuovo questa persona?')) return;
+    DB.utenti=DB.utenti.filter(u=>u.id!==+b.dataset.id); await save(); listaUtenti(); toast('Rimossa');
+  });
+}
+$('#u_add').onclick=async()=>{
+  const nome=$('#u_nome').value.trim(), pin=$('#u_pin').value.trim();
+  if(!nome || !/^\d{4}$/.test(pin)){ toast('Servono nome e PIN di 4 cifre','bad'); return; }
+  DB.utenti.push({id:Date.now()%100000, nome, pin, ruolo:$('#u_ruolo').value});
+  await save(); listaUtenti(); $('#u_nome').value=''; $('#u_pin').value=''; toast(nome+' aggiunto');
+};
+$('#i_salva').onclick=async()=>{
+  DB.cfg={...(DB.cfg||{}), att:$('#i_att').value.trim(), riv:$('#i_riv').value.trim()};
+  await save(); permessi(); toast('Salvato');
+};
+$('#s_salva2').onclick=async()=>{ DB.soglia=parseInt($('#soglia2').value,10)||0; await save(); render(); toast('Soglia salvata'); };
+$('#esci').onclick=()=>{ io=null; mostraGate('log'); };
+$('#rz_ven').onclick=async()=>{
+  if(!confirm('Cancello tutte le vendite registrate? Le giacenze restano come sono adesso.')) return;
+  DB.mov=DB.mov.filter(m=>m.t!=='ven'); await save(); render(); toast('Vendite cancellate');
+};
+$('#rz_gia').onclick=async()=>{
+  if(!confirm('Rimetto magazzino e distributore ai valori iniziali?')) return;
+  DB.slot=JSON.parse(JSON.stringify(INIT_SLOT));
+  DB.st={}; for(const c in INIT_MAG) DB.st[c]={m:INIT_MAG[c],s:0};
+  await save(); render(); toast('Giacenza iniziale ricaricata');
+};
+$('#rz_tut').onclick=async()=>{
+  if(!confirm('Cancello TUTTO: giacenze, vendite, utenti. Si riparte dalla registrazione.')) return;
+  if(!confirm('Sicuro? Scarica prima il backup se ti serve.')) return;
+  DB={st:{},mov:[],soglia:5,slot:[],utenti:[],cfg:null}; io=null;
+  await save(); mostraGate('reg');
+};
+$('#bk_exp').onclick=()=>{
+  const b=new Blob([JSON.stringify(DB)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b);
+  a.download='backup_mk2_'+oggi()+'.json'; a.click();
+};
+$('#bk_file').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=async()=>{ try{ const d=JSON.parse(r.result);
+    if(!confirm('Sostituisco i dati attuali con quelli del backup?')) return;
+    DB=d; await save(); render(); listaUtenti(); toast('Backup ripristinato');
+  }catch(err){ toast('File non valido','bad'); } };
+  r.readAsText(f);
+});
+// ================= home =================
+function home(){
+  const v=DB.mov.filter(m=>m.t==='ven'&&m.d===oggi());
+  const pz=v.reduce((s,m)=>s+m.q,0), inc=v.reduce((s,m)=>{const p=P.get(m.c); return s+(p?p.p*m.q:0);},0);
+  let neg=0, val=0, valTab=0;
+  for(const c in DB.st){ const p=P.get(+c); if(!p) continue; neg+=tot(+c); val+=tot(+c)*p.p; if(p.k>0) valTab+=tot(+c)*p.p; }
+  const dis=DB.slot.reduce((s,x)=>s+x.q,0);
+  let valD=0; DB.slot.forEach(s=>{ const p=s.c?P.get(s.c):null; if(p){ valD+=s.q*p.p; if(p.k>0) valTab+=s.q*p.p; } });
+  $('#h_ven').innerHTML=pz+'<small>pacchetti venduti oggi</small>';
+  $('#h_inc').innerHTML=eur(inc)+'<small>incasso di oggi</small>';
+  $('#h_neg').innerHTML=neg+'<small>pacchetti in negozio</small>';
+  $('#h_dis').innerHTML=dis+'<small>nel distributore</small>';
+  const sotto=Object.keys(DB.st).map(Number).filter(c=>P.get(c)&&tot(c)<DB.soglia&&tot(c)>=0)
+    .sort((a,b)=>tot(a)-tot(b)).slice(0,10);
+  const vuoti=DB.slot.filter(s=>s.q===0);
+  $('#h_sotto').innerHTML = (sotto.length? sotto.map(c=>row(P.get(c).d, tot(c)+' pacch.')).join('') : '<p class="hint">Niente sotto soglia.</p>')
+    + (vuoti.length? row('<b>Slot vuoti nel distributore</b>','<b>'+vuoti.length+'</b>') : '');
+  $('#h_val').innerHTML = row('In negozio', eur(val)) + row('Nel distributore', eur(valD)) +
+    row('<b>Totale a prezzo di vendita</b>','<b>'+eur(val+valD)+'</b>') +
+    row('Aggio sui tabacchi (10%)', eur(valTab*0.10));
+}
+document.querySelectorAll('.azioni button').forEach(b=>b.onclick=()=>{
+  document.querySelector('nav [data-t='+b.dataset.va+']').click();
+});
+function avvia(){
+  permessi(); listaUtenti();
+  if(DB.cfg){ $('#i_att').value=DB.cfg.att||''; $('#i_riv').value=DB.cfg.riv||''; }
+  render();
+}
+// --- vendita: lettore barcode fisico o ricerca a mano ---
+let uven='pacco', dove='banco', buf='', tmr=null;
+$('#seg_ven').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  uven=b.dataset.u; $('#seg_ven').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b)); fuoco();
+});
+$('#seg_dove').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  dove=b.dataset.l; $('#seg_dove').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b)); fuoco();
+});
+const fuoco=()=>{ const i=$('#q_ven'); if(document.querySelector('#vendita.on')) setTimeout(()=>i.focus(),0); };
+document.querySelector('nav [data-t=vendita]').addEventListener('click',fuoco);
+
+async function vendi(p,qta){
+  const n = qta || (uven==='stecca' ? 10 : 1);
+  if(dove==='dist'){
+    const sl=DB.slot.filter(s=>s.c===p.c).sort((a,b)=>b.q-a.q);
+    let resto=n;
+    sl.forEach(s=>{ const t=Math.min(s.q,resto); s.q-=t; resto-=t; });
+    if(resto>0 && !sl.length){ beep(); toast(p.d+': non è in nessuno slot','bad'); return; }
+    if(resto>0) toast(p.d+': nel distributore ne risultavano meno','bad');
+  } else {
+    const b=box(p.c);
+    if(tot(p.c) < n){ beep(); toast(p.d+': non risulta in giacenza','bad'); return; }
+    if(uven==='stecca' && b.m>0 && !qta){ b.m--; }
+    else{
+      while(b.s < n && b.m>0){ b.m--; b.s+=10; DB.mov.push({d:oggi(),c:p.c,t:'apr',q:10}); }
+      b.s=Math.max(0,b.s-n);
+    }
+  }
+  DB.mov.push({d:oggi(),c:p.c,t:'ven',q:n,l:dove,h:new Date().toTimeString().slice(0,5),u:io?io.nome:''});
+  await save(); beep();
+  const u=$('#ultima'); u.style.display='block';
+  u.innerHTML=`<div class="d" style="font-size:15px;font-weight:650">${p.d}</div>
+    <div class="m num" style="color:var(--mute);font-size:13px">${n} ${n===1?'pacchetto':'pacchetti'} · ${eur(p.p*n)} · restano ${dove==='dist'?DB.slot.filter(s=>s.c===p.c).reduce((s,x)=>s+x.q,0)+' nel distributore':tot(p.c)+' in negozio'}</div>`;
+  render(); fuoco();
+}
+function leggi(codice){
+  const c=codice.replace(/\D/g,'');
+  if(c.length<8) return false;
+  const p=byEan.get(c);
+  if(!p){ beep(); toast('Barcode '+c+' sconosciuto','bad'); return true; }
+  vendi(p); return true;
+}
+$('#q_ven').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){                      // il lettore chiude sempre con Invio
+    e.preventDefault(); clearTimeout(tmr);
+    const v=$('#q_ven').value.trim();
+    $('#q_ven').value=''; $('#r_ven').innerHTML='';
+    if(!leggi(v)){ const h2=cerca(v,1); if(h2.length) vendi(h2[0]); else toast('Non trovato','bad'); }
+  }
+});
+$('#q_ven').addEventListener('input', e=>{
+  const v=e.target.value;
+  clearTimeout(tmr);
+  const ean=v.replace(/\D/g,'');
+  if(ean.length>=8 && /^\d+$/.test(v.trim())){         // sembra un barcode: aspetto che finisca
+    tmr=setTimeout(()=>{ e.target.value=''; $('#r_ven').innerHTML=''; leggi(ean); }, 140);
+    return;
+  }
+  const hits=cerca(v,30);
+  $('#r_ven').innerHTML=hits.map(p=>{const b=DB.st[p.c]||{m:0,s:0};
+    return `<div class="hit" data-c="${p.c}"><b>${p.d}</b><span>${eur(p.p)} · restano ${b.s} pacch. + ${b.m} stecche</span></div>`;}).join('');
+  $('#r_ven').querySelectorAll('.hit').forEach(x=>x.onclick=()=>{ $('#q_ven').value=''; $('#r_ven').innerHTML=''; vendi(P.get(+x.dataset.c)); });
+});
+$('#annulla').onclick=async()=>{
+  for(let i=DB.mov.length-1;i>=0;i--){
+    if(DB.mov[i].t==='ven'){
+      const m=DB.mov.splice(i,1)[0];
+      if(m.l==='dist'){ const s=DB.slot.find(x=>x.c===m.c); if(s) s.q+=m.q; }
+      else box(m.c).s+=m.q;
+      await save(); render(); toast('Annullata: '+P.get(m.c).d); fuoco(); return;
+    }
+  }
+  toast('Nessuna vendita da annullare','bad');
+};
+
+// --- fotocamera come lettore ---
+let stream=null, track=null, ciclo=null, lettore=null, ultimo='', ultimoT=0;
+async function camStart(){
+  try{ stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}}); }
+  catch(e){ toast('Fotocamera bloccata: serve aprire questa pagina da un indirizzo https','bad'); return; }
+  const v=$('#v'); v.srcObject=stream; await v.play();
+  track=stream.getVideoTracks()[0];
+  $('#cam').classList.add('on'); $('#camon').textContent='Spegni la fotocamera';
+  try{ const cap=track.getCapabilities&&track.getCapabilities();
+       if(cap&&cap.torch) $('#luce').style.display='block';
+       if(cap&&cap.focusMode) await track.applyConstraints({advanced:[{focusMode:'continuous'}]});
+  }catch(e){}
+  const nuovo=c=>{ const t=Date.now(); if(c!==ultimo || t-ultimoT>1200){ ultimo=c; ultimoT=t; return true; } return false; };
+  if('BarcodeDetector' in window){
+    const det=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e']});
+    ciclo=setInterval(async()=>{ try{ const r=await det.detect(v); if(r.length && nuovo(r[0].rawValue)) leggi(r[0].rawValue); }catch(e){} },300);
+    return;
+  }
+  const Z = window.ZXing || window.ZXingBrowser;
+  if(Z){
+    try{
+      const rd = new (Z.BrowserMultiFormatReader || Z.BrowserBarcodeReader)();
+      const cb = (res,err)=>{ if(res){ const t = res.getText ? res.getText() : res.text; if(t && nuovo(t)) leggi(t); } };
+      if(rd.decodeFromVideoElementContinuously) rd.decodeFromVideoElementContinuously(v, cb);
+      else if(rd.decodeFromVideoElement) rd.decodeFromVideoElement(v, cb);
+      else if(rd.decodeContinuously) rd.decodeContinuously(v, cb);
+      else throw new Error('api');
+      ciclo='zxing'; lettore=rd; return;
+    }catch(e){ console.log('zxing', e); }
+  }
+  toast('Questo browser non decodifica i barcode: usa il lettore fisico','bad');
+}
+function camStop(){
+  if(ciclo && ciclo!=='zxing') clearInterval(ciclo);
+  if(lettore){ try{ lettore.reset && lettore.reset(); }catch(e){} lettore=null; }
+  if(stream) stream.getTracks().forEach(t=>t.stop());
+  stream=null; ciclo=null; $('#cam').classList.remove('on'); $('#camon').textContent='Usa la fotocamera come pistola';
+}
+$('#camon').onclick=()=> stream? camStop() : camStart();
+$('#luce').onclick=async()=>{ try{ const on=!(track.getSettings().torch);
+  await track.applyConstraints({advanced:[{torch:on}]}); $('#luce').textContent=on?'Spegni la luce':'Accendi la luce'; }catch(e){} };
+function rapidi(){
+  const c30=new Date(Date.now()-30*864e5).toISOString().slice(0,10), agg={};
+  DB.mov.filter(m=>m.t==='ven'&&m.d>=c30).forEach(m=>agg[m.c]=(agg[m.c]||0)+m.q);
+  let cods=Object.keys(agg).map(Number).sort((a,b)=>agg[b]-agg[a]).slice(0,12);
+  if(!cods.length) cods=Object.keys(DB.st).map(Number).sort((a,b)=>tot(b)-tot(a)).slice(0,12);
+  $('#rapidi').innerHTML = cods.length ? cods.map(c=>{const p=P.get(c); if(!p) return '';
+    return `<div class="line" style="grid-template-columns:1fr auto"><div><div class="d">${p.d}</div>
+      <div class="m num">${eur(p.p)} · restano ${tot(c)} pacch.</div></div>
+      <div class="move"><button data-c="${c}">Vendi</button></div></div>`;}).join('')
+    : '<p class="hint">Compaiono qui appena vendi o carichi qualcosa.</p>';
+  $('#rapidi').querySelectorAll('.move button').forEach(b=>b.onclick=()=>vendi(P.get(+b.dataset.c)));
+}
+function oggiTot(){
+  const v=DB.mov.filter(m=>m.t==='ven'&&m.d===oggi());
+  const pz=v.reduce((s,m)=>s+m.q,0), inc=v.reduce((s,m)=>{const p=P.get(m.c); return s+(p?p.p*m.q:0);},0);
+  $('#k_oggi').innerHTML=pz+'<small>pacchetti venduti oggi</small>';
+  $('#k_oggi_e').innerHTML=eur(inc)+'<small>incasso · aggio '+eur(inc*0.1)+'</small>';
+}
+
+// --- distributore ---
+function prendi(c,n){                       // toglie n pacchetti dalla giacenza interna
+  const b=box(c); let mancanti=n;
+  while(mancanti>0 && b.s===0 && b.m>0){ b.m--; b.s+=10; DB.mov.push({d:oggi(),c,t:'apr',q:10}); }
+  const preso=Math.min(b.s,mancanti); b.s-=preso; mancanti-=preso;
+  while(mancanti>0 && b.m>0){ b.m--; b.s+=10; DB.mov.push({d:oggi(),c,t:'apr',q:10});
+    const p2=Math.min(b.s,mancanti); b.s-=p2; mancanti-=p2; }
+  return n-mancanti;                        // quanti ne ha trovati davvero
+}
+function listaDist(f){
+  f=(f||'').toLowerCase();
+  const arr=DB.slot.filter(s=>!f || s.nome.toLowerCase().includes(f) || String(s.n)===f);
+  $('#l_dist').innerHTML = arr.map(s=>{
+    const p=s.c?P.get(s.c):null;
+    return `<div class="line" style="grid-template-columns:1fr 70px 70px"><div><div class="d">${s.n}. ${s.nome}</div>
+      <div class="m num">dentro ${s.q} pacch.${p?' · magazzino '+tot(s.c)+' pacch.':' · fuori listino'}</div></div>
+      <input type="number" inputmode="numeric" min="0" placeholder="+" data-n="${s.n}" data-k="add" aria-label="aggiungi allo slot ${s.n}">
+      <input type="number" inputmode="numeric" min="0" value="${s.q}" data-n="${s.n}" data-k="set" aria-label="pacchetti nello slot ${s.n}"></div>`;
+  }).join('');
+  $('#l_dist').querySelectorAll('input').forEach(i=>i.onchange=async()=>{
+    const s=DB.slot.find(x=>x.n===+i.dataset.n), v=Math.max(0,parseInt(i.value,10)||0);
+    if(i.dataset.k==='set'){ s.q=v; }
+    else{
+      if(!v) return;
+      let trovati=v;
+      if(s.c){ trovati=prendi(s.c,v);
+        if(trovati<v) toast('In magazzino ne risultavano solo '+trovati+', li carico comunque','bad'); }
+      s.q+=v; if(s.c) DB.mov.push({d:oggi(),c:s.c,t:'rif',q:v});
+      i.value='';
+    }
+    await save(); render(); toast('Slot '+s.n+' aggiornato');
+  });
+}
+$('#q_dist').addEventListener('input',e=>listaDist(e.target.value));
+$('#rep_ok').onclick=async()=>{
+  const righe=$('#rep').value.split('\n').map(r=>r.trim()).filter(Boolean);
+  if(!righe.length){ toast('Incolla il report','bad'); return; }
+  let ok=0, ko=[];
+  for(const r of righe){
+    const m=r.match(/^(.*?)[\s,;]+(\d+)$/); if(!m){ ko.push(r); continue; }
+    const chiave=m[1].trim(), n=parseInt(m[2],10);
+    let cod=null;
+    if(/^\d+$/.test(chiave) && P.has(+chiave)) cod=+chiave;
+    else { const hit=cerca(chiave,2); if(hit.length===1) cod=hit[0].c; }
+    if(!cod){ ko.push(r); continue; }
+    let resto=n;
+    DB.slot.filter(s=>s.c===cod).sort((a,b)=>b.q-a.q).forEach(s=>{
+      const p=Math.min(s.q,resto); s.q-=p; resto-=p; });
+    DB.mov.push({d:oggi(),c:cod,t:'ven',q:n,l:'dist'});
+    ok++;
+  }
+  await save(); render(); $('#rep').value='';
+  toast(ok+' righe registrate'+(ko.length?' · '+ko.length+' non riconosciute':''));
+  if(ko.length) alert('Non ho riconosciuto:\n'+ko.join('\n'));
+};
+// --- vendite ---
+function vendite(){
+  const da=$('#da').value||'0000-00-00', a=$('#a').value||'9999-99-99', agg={};
+  DB.mov.filter(m=>m.t==='ven'&&m.d>=da&&m.d<=a).forEach(m=>agg[m.c]=(agg[m.c]||0)+m.q);
+  const arr=Object.keys(agg).map(Number).map(c=>({p:P.get(c),q:agg[c]})).filter(x=>x.p).sort((x,y)=>y.q-x.q);
+  const pz=arr.reduce((s,x)=>s+x.q,0), inc=arr.reduce((s,x)=>s+x.q*x.p.p,0);
+  $('#tot_vend').innerHTML=`<div class="kpi num">${pz}<small>pacchetti venduti</small></div>
+    <div class="kpi num" style="margin-top:8px">${eur(inc)}<small>incasso · aggio ${eur(inc*0.1)}</small></div>`;
+  $('#l_vend').innerHTML=arr.length? '<table><tr><th>Prodotto</th><th>Pacch.</th><th>Incasso</th></tr>'+
+    arr.map(x=>`<tr><td>${x.p.d}</td><td class="num">${x.q}</td><td class="num">${eur(x.q*x.p.p)}</td></tr>`).join('')+'</table>'
+    : '<p class="hint">Nessuna vendita nel periodo.</p>';
+}
+$('#da').addEventListener('change',vendite); $('#a').addEventListener('change',vendite);
+function render(){
+  let pac=0,val=0;
+  for(const c in DB.st){ const p=P.get(+c); if(!p) continue; const t=tot(+c); pac+=t; val+=t*p.p; }
+  $('#k_pac').innerHTML=pac+'<small>Pacchetti totali</small>';
+  $('#k_val').innerHTML=eur(val)+'<small>Valore a prezzo pubblico</small>';
+  $('#soglia2').value=DB.soglia;
+  const a={}; DB.mov.filter(m=>m.d===oggi()&&m.t==='car').forEach(m=>a[m.c]=(a[m.c]||0)+m.q);
+  $('#oggi_car').innerHTML=Object.keys(a).length? Object.keys(a).map(c=>
+    `<div class="line" style="grid-template-columns:1fr auto"><div class="d">${P.get(+c).d}</div><div class="num">+${a[c]} pacch.</div></div>`).join('')
+    : '<p class="hint">Niente ancora.</p>';
+  $('#d_pac').innerHTML=DB.slot.reduce((s,x)=>s+x.q,0)+'<small>Pacchetti nel distributore</small>';
+  $('#d_vuoti').innerHTML=DB.slot.filter(x=>x.q===0).length+'<small>Slot vuoti</small>';
+  home(); listaDist($('#q_dist').value); listaSca($('#q_sca').value); listaConta($('#q_con').value); listaGiac($('#q_gia').value); vendite(); rapidi(); oggiTot();
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));
+  window.scrollTo(0,0);
+});
+
+$('#xls').onclick=()=>{
+  const wb=XLSX.utils.book_new();
+  const g=[['Codice','Prodotto','Stecche magazzino','Pacchetti scaffale','Pacchetti totali','Prezzo','Valore']];
+  Object.keys(DB.st).map(Number).forEach(c=>{const p=P.get(c); if(p){const b=DB.st[c];
+    g.push([c,p.d,b.m,b.s,tot(c),p.p,+(tot(c)*p.p).toFixed(2)]);}});
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(g),'Giacenze');
+  const m=[['Data','Ora','Codice','Prodotto','Movimento','Pacchetti','Dove','Operatore']];
+  const nomi={car:'carico',ven:'vendita',apr:'stecca aperta',ret:'correzione',dif:'differenza al controllo',rif:'messo nel distributore'};
+  DB.mov.slice().sort((x,y)=>x.d.localeCompare(y.d)).forEach(x=>{const p=P.get(x.c); if(p) m.push([x.d,x.h||'',x.c,p.d,nomi[x.t],x.q,x.l==='dist'?'distributore':'banco',x.u||'']);});
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(m),'Movimenti');
+  const sl=[['Slot','Codice','Prodotto','Pacchetti dentro']];
+  DB.slot.forEach(s=>sl.push([s.n,s.c||'',s.nome,s.q]));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(sl),'Distributore');
+  XLSX.writeFile(wb,'magazzino_mk2_'+oggi()+'.xlsx');
+};
+(async()=>{ await load();
+  if(!DB.utenti) DB.utenti=[];
+  const d=new Date(); $('#da').value=new Date(d.getFullYear(),d.getMonth(),1).toISOString().slice(0,10);
+  $('#a').value=oggi();
+  if(!DB.utenti.length) mostraGate('reg'); else mostraGate('log');
+})();
+</script>
