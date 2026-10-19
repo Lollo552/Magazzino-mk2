@@ -131,19 +131,20 @@ const nome = p => p.d.replace(/\*/g,' ').replace(/\s+/g,' ').trim();
 const M='(?:m|marlboro|marlbor\\w*)', W='(?:winston|whistle|wiston)', R='(?:rothmans?|rothman|rot|rit)',
       BE='(?:benson\\w*|bensoms|bens\\w*|b ?& ?h|bh)', CH='(?:chest\\w*|chester\\w*)',
       PM='(?:(?:philip\\w*|philippe|filip\\w*) morris|pm)', JP='(?:jps|j p s|gps|john player special|john player)',
-      ROSSA='(?:ross\\w+|red)', BIANCA='(?:bianc\\w+|white)', BLU='(?:blue|blu)', KRAFT='(?:kraft|crafted|crafter|craft|craf\\w*)';
+      ROSSA='(?:ross\\w+|red)', BIANCA='(?:bianc\\w+|white)', BLU='(?:blue|blu)', T='(?:terea|terra|teria|tera|terea)', KRAFT='(?:kraft|crafted|crafter|craft|craf\\w*)';
 const RULES = [
   [`${M} ${KRAFT} (?:gold|oro)`, {n:3906,h:21037}],
   [`${M} ${KRAFT} ${ROSSA}`, {n:3907,h:21036}],
-  [`${M} (?:gold|oro) pocket|${M} pocket`, {n:2658}],
+  [`${M} (?:gold|oro) po[ck]\\w*|${M} po[ck]\\w*(?: (?:gold|oro))?`, {n:2658}],
   [`${M} mix`, {n:259}],
   [`${M} silver(?: ${BLU})?`, {n:2616}],
   [`${M} touch`, {n:3422}],
   [`${M} ${BIANCA}`, {n:2688}],
-  [`${M} (?:gold|oro)`, {n:9,soft:618,h:651}],
-  [`${M} ${ROSSA}|^${M}$`, {n:395,soft:396,h:819}],
+  [`${M} (?:gold|oro)`, {n:9,soft:618,h:651,t:3495}],
+  [`${M} ${ROSSA}|^${M}$`, {n:395,soft:396,h:819,t:3494}],
   [`camel (?:yellow|giall\\w+)`, {n:264,soft:270,h:405}],
   [`camel(?: ${BLU})?`, {n:478,soft:632,h:546}],
+  [`${W} (?:cort\\w+|short)(?: ${BLU})?`, {n:20648}],
   [`${W} ${ROSSA}`, {n:91,soft:245,h:1783}],
   [`${W} silver`, {n:134,h:2296,slim:2066}],
   [`${W} ${BIANCA}`, {n:1248,slim:3467}],
@@ -182,12 +183,12 @@ const RULES = [
   [`diana ${BLU}`, {n:630}],
   [`delia (?:gold|oro)`, {n:21108}],
   [`delia (?:green|verde)`, {n:21232}],
-  [`terea (?:cloud fuse|cloud)`, {n:20785}],
-  [`terea amber`, {n:20146}], [`terea azure|terea azzurr\\w*`, {n:20659}], [`terea bronze`, {n:20148}],
-  [`terea russet`, {n:20150}], [`terea sien+a`, {n:20151}], [`terea silver`, {n:20152}],
-  [`terea teak`, {n:20153}], [`terea (?:turquo\\w*|turche\\w*)`, {n:20154}],
-  [`terea (?:yellow|giall\\w+)`, {n:20155}], [`terea kona`, {n:21174}], [`terea dore`, {n:21175}],
-  [`terea khaki`, {n:21270}],
+  [`${T} (?:cloud fuse|cloud)`, {n:20785}],
+  [`${T} amber`, {n:20146}], [`${T} (?:azure|azzurr\\w*)`, {n:20659}], [`${T} bronze`, {n:20148}],
+  [`${T} russet`, {n:20150}], [`${T} sien+a`, {n:20151}], [`${T} silver`, {n:20152}],
+  [`${T} teak`, {n:20153}], [`${T} (?:turquo\\w*|turche\\w*)`, {n:20154}],
+  [`${T} (?:yellow|giall\\w+)`, {n:20155}], [`${T} kona`, {n:21174}], [`${T} dore`, {n:21175}],
+  [`${T} khaki`, {n:21270}],
 ].map(([re,v])=>[new RegExp('^(?:'+re+')$'), v]);
 
 function norm(s){
@@ -224,7 +225,7 @@ function leggiRiga(raw){
     else if(soft && v.soft) code=v.soft;
     else if(h && v.h) code=v.h;
     else if(slim && v.slim) code=v.slim;
-    else { code=v.n; if(soft||h||slim) nota='non esiste la versione richiesta: messa la normale'; }
+    else { code=v.n; if(tab) nota='tabacco 30 g di questo marchio non trovato: messa la sigaretta'; else if(soft||h||slim) nota='non esiste la versione richiesta: messa la normale'; }
     const p = byCode.get(String(code));
     if(p) return {p, q, src:raw.trim(), stato: nota?'check':'ok', nota};
   }
