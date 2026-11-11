@@ -1,0 +1,49 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "blocks": {
+        "eyebrow": { "type": "eyebrow", "settings": { "text": "Nuova stagione" } },
+        "heading": { "type": "heading", "settings": { "heading": "Il meglio del quartiere, a casa tua", "size": "1" } },
+        "text": { "type": "text", "settings": { "text": "<p>Prodotti selezionati, prezzi chiari, consegna rapida.</p>" } },
+        "buttons": { "type": "buttons", "settings": { "label_1": "Scopri i prodotti", "label_2": "Collezioni" } }
+      },
+      "block_order": ["eyebrow", "heading", "text", "buttons"],
+      "settings": { "height": "large", "alignment": "left", "overlay_opacity": 35 }
+    },
+    "features": {
+      "type": "features",
+      "blocks": {
+        "f1": { "type": "feature", "settings": { "icon": "truck", "title": "Spedizione rapida", "text": "Consegna in 24/48 ore in tutta Italia." } },
+        "f2": { "type": "feature", "settings": { "icon": "shield", "title": "Pagamenti sicuri", "text": "Carte, PayPal e Shop Pay protetti." } },
+        "f3": { "type": "feature", "settings": { "icon": "return", "title": "Reso semplice", "text": "14 giorni per cambiare idea." } },
+        "f4": { "type": "feature", "settings": { "icon": "chat", "title": "Assistenza vera", "text": "Rispondiamo noi, non un bot." } }
+      },
+      "block_order": ["f1", "f2", "f3", "f4"],
+      "settings": { "heading": "" }
+    },
+    "featured-collection": {
+      "type": "featured-collection",
+      "settings": { "heading": "In evidenza", "products_to_show": 8, "columns_desktop": 4, "show_view_all": true }
+    },
+    "collection-list": {
+      "type": "collection-list",
+      "blocks": {
+        "c1": { "type": "collection", "settings": {} },
+        "c2": { "type": "collection", "settings": {} },
+        "c3": { "type": "collection", "settings": {} }
+      },
+      "block_order": ["c1", "c2", "c3"],
+      "settings": { "heading": "Categorie", "columns_desktop": 3 }
+    },
+    "image-with-text": {
+      "type": "image-with-text",
+      "settings": { "image_position": "left", "eyebrow": "La nostra storia", "heading": "Dal bancone al web", "text": "<p>Racconta chi sei, cosa vendi e perché i clienti dovrebbero sceglierti.</p>", "button_label": "Scopri di più" }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": { "heading": "Resta aggiornato", "text": "<p>Iscriviti per ricevere novità e offerte riservate.</p>" }
+    }
+  },
+  "order": ["hero", "features", "featured-collection", "collection-list", "image-with-text", "newsletter"]
+}

@@ -1,0 +1,31 @@
+<section class="section page-width" style="--columns-desktop: 3;">
+  <h1 class="page-title">{{ section.settings.title | escape }}</h1>
+  <ul class="grid grid--collections" role="list">
+    {%- for collection in collections -%}
+      {%- unless collection.handle == 'frontpage' -%}
+        <li class="grid__item">
+          <a class="collection-card" href="{{ collection.url }}">
+            <div class="collection-card__media">
+              {%- if collection.featured_image -%}
+                {{ collection.featured_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '360, 540, 720, 900', sizes: '(min-width: 750px) 33vw, 50vw', alt: collection.title }}
+              {%- else -%}
+                {{ 'collection-1' | placeholder_svg_tag: 'placeholder' }}
+              {%- endif -%}
+            </div>
+            <span class="collection-card__title">{{ collection.title | escape }} {% render 'icon', name: 'arrow-right' %}</span>
+          </a>
+        </li>
+      {%- endunless -%}
+    {%- endfor -%}
+  </ul>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.main_list_collections.name",
+  "class": "section-main-list-collections",
+  "settings": [
+    { "type": "text", "id": "title", "label": "t:general.heading", "default": "Collezioni" }
+  ]
+}
+{% endschema %}

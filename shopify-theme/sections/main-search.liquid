@@ -1,0 +1,45 @@
+<section class="section page-width" style="--columns-desktop: 4;">
+  <h1 class="page-title">{{ 'templates.search.title' | t }}</h1>
+  <form action="{{ routes.search_url }}" method="get" role="search" class="search-form search-form--page">
+    <label class="visually-hidden" for="SearchPage">{{ 'general.search.search' | t }}</label>
+    <input id="SearchPage" type="search" name="q" value="{{ search.terms | escape }}" placeholder="{{ 'general.search.placeholder' | t }}">
+    <input type="hidden" name="options[prefix]" value="last">
+    <button type="submit" class="button">{{ 'general.search.submit' | t }}</button>
+  </form>
+
+  {%- if search.performed -%}
+    {%- paginate search.results by 16 -%}
+      <p class="muted results-count">{{ 'templates.search.results_with_count' | t: terms: search.terms, count: search.results_count }}</p>
+      {%- if search.results_count == 0 -%}
+        <div class="empty-state"><p>{{ 'templates.search.no_results' | t: terms: search.terms }}</p></div>
+      {%- else -%}
+        <ul class="grid grid--products" role="list">
+          {%- for item in search.results -%}
+            <li class="grid__item">
+              {%- case item.object_type -%}
+                {%- when 'product' -%}
+                  {% render 'product-card', product: item %}
+                {%- when 'article' -%}
+                  {% render 'article-card', article: item %}
+                {%- when 'page' -%}
+                  <article class="card card--text">
+                    <p class="muted">{{ 'templates.search.page' | t }}</p>
+                    <h3 class="card__title"><a href="{{ item.url }}" class="link-cover">{{ item.title | escape }}</a></h3>
+                  </article>
+              {%- endcase -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+      {% render 'pagination', paginate: paginate %}
+    {%- endpaginate -%}
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.main_search.name",
+  "class": "section-main-search",
+  "settings": []
+}
+{% endschema %}

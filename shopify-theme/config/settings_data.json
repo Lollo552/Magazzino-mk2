@@ -1,0 +1,15 @@
+{
+  "current": "Default",
+  "presets": {
+    "Default": {
+      "color_background": "#F7F5F0",
+      "color_surface": "#FFFFFF",
+      "color_text": "#0B1B33",
+      "color_accent": "#0B1B33",
+      "color_accent_contrast": "#F7F5F0",
+      "color_sale": "#C2410C",
+      "type_header_font": "fraunces_n6",
+      "type_body_font": "inter_n4"
+    }
+  }
+}

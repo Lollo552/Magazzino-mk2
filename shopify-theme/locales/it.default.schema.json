@@ -1,0 +1,372 @@
+{
+  "general": {
+    "alignment": "Allineamento",
+    "center": "Centro",
+    "left": "Sinistra",
+    "right": "Destra",
+    "columns_desktop": "Colonne su desktop",
+    "heading": "Titolo",
+    "text": "Testo",
+    "link": "Link",
+    "size": "Dimensione",
+    "small": "Piccola",
+    "medium": "Media",
+    "large": "Grande"
+  },
+  "sections": {
+    "header_group": {
+      "name": "Gruppo intestazione"
+    },
+    "footer_group": {
+      "name": "Gruppo piè di pagina"
+    },
+    "announcement": {
+      "name": "Barra annunci",
+      "settings": {
+        "rotate": {
+          "label": "Rotazione ogni"
+        }
+      },
+      "blocks": {
+        "announcement": {
+          "name": "Annuncio"
+        }
+      }
+    },
+    "header": {
+      "name": "Intestazione",
+      "settings": {
+        "logo": {
+          "label": "Logo"
+        },
+        "logo_width": {
+          "label": "Larghezza logo"
+        },
+        "menu": {
+          "label": "Menu"
+        },
+        "sticky": {
+          "label": "Intestazione fissa durante lo scroll"
+        }
+      }
+    },
+    "footer": {
+      "name": "Piè di pagina",
+      "settings": {
+        "show_social": {
+          "label": "Mostra icone social"
+        },
+        "show_payment_icons": {
+          "label": "Mostra metodi di pagamento"
+        },
+        "show_policies": {
+          "label": "Mostra link alle policy"
+        }
+      },
+      "blocks": {
+        "text": {
+          "name": "Testo"
+        },
+        "menu": {
+          "name": "Menu"
+        },
+        "newsletter": {
+          "name": "Newsletter"
+        }
+      }
+    },
+    "hero": {
+      "name": "Immagine principale",
+      "settings": {
+        "image": {
+          "label": "Immagine"
+        },
+        "height": {
+          "label": "Altezza"
+        },
+        "overlay": {
+          "label": "Opacità sovrapposizione"
+        }
+      },
+      "blocks": {
+        "eyebrow": {
+          "name": "Sopratitolo"
+        },
+        "buttons": {
+          "name": "Pulsanti",
+          "settings": {
+            "label_1": {
+              "label": "Testo pulsante 1"
+            },
+            "link_1": {
+              "label": "Link pulsante 1"
+            },
+            "label_2": {
+              "label": "Testo pulsante 2"
+            },
+            "link_2": {
+              "label": "Link pulsante 2"
+            }
+          }
+        }
+      }
+    },
+    "featured_collection": {
+      "name": "Collezione in evidenza",
+      "settings": {
+        "collection": {
+          "label": "Collezione"
+        },
+        "products_to_show": {
+          "label": "Prodotti da mostrare"
+        },
+        "show_view_all": {
+          "label": "Mostra \"Vedi tutti\""
+        }
+      }
+    },
+    "collection_list": {
+      "name": "Elenco collezioni",
+      "blocks": {
+        "collection": {
+          "name": "Collezione"
+        }
+      }
+    },
+    "image_with_text": {
+      "name": "Immagine con testo",
+      "settings": {
+        "image_position": {
+          "label": "Posizione immagine"
+        }
+      }
+    },
+    "rich_text": {
+      "name": "Testo formattato",
+      "blocks": {
+        "button": {
+          "name": "Pulsante"
+        }
+      }
+    },
+    "features": {
+      "name": "Punti di forza",
+      "blocks": {
+        "feature": {
+          "name": "Punto di forza",
+          "settings": {
+            "icon": {
+              "label": "Icona"
+            }
+          }
+        }
+      },
+      "icons": {
+        "truck": "Spedizione",
+        "shield": "Sicurezza",
+        "return": "Reso",
+        "chat": "Assistenza"
+      }
+    },
+    "newsletter": {
+      "name": "Newsletter"
+    },
+    "contact_form": {
+      "name": "Modulo di contatto"
+    },
+    "main_product": {
+      "name": "Informazioni prodotto",
+      "blocks": {
+        "vendor": {
+          "name": "Marca"
+        },
+        "title": {
+          "name": "Titolo"
+        },
+        "price": {
+          "name": "Prezzo"
+        },
+        "buy_buttons": {
+          "name": "Pulsanti di acquisto",
+          "settings": {
+            "show_quantity": {
+              "label": "Mostra selettore quantità"
+            },
+            "show_dynamic_checkout": {
+              "label": "Mostra pulsanti di checkout rapido"
+            }
+          }
+        },
+        "description": {
+          "name": "Descrizione"
+        },
+        "collapsible": {
+          "name": "Scheda a scomparsa",
+          "settings": {
+            "page": {
+              "label": "Contenuto da pagina"
+            }
+          }
+        },
+        "share": {
+          "name": "Condividi"
+        }
+      }
+    },
+    "product_recommendations": {
+      "name": "Prodotti consigliati"
+    },
+    "main_collection": {
+      "name": "Griglia prodotti",
+      "settings": {
+        "products_per_page": {
+          "label": "Prodotti per pagina"
+        },
+        "show_description": {
+          "label": "Mostra descrizione collezione"
+        },
+        "enable_filtering": {
+          "label": "Abilita filtri"
+        },
+        "enable_sorting": {
+          "label": "Abilita ordinamento"
+        }
+      }
+    },
+    "main_list_collections": {
+      "name": "Elenco collezioni"
+    },
+    "main_cart": {
+      "name": "Carrello"
+    },
+    "main_page": {
+      "name": "Pagina"
+    },
+    "main_search": {
+      "name": "Risultati di ricerca"
+    },
+    "main_404": {
+      "name": "Pagina 404"
+    },
+    "main_blog": {
+      "name": "Articoli del blog"
+    },
+    "main_article": {
+      "name": "Articolo",
+      "settings": {
+        "show_author": {
+          "label": "Mostra autore"
+        }
+      }
+    },
+    "main_password": {
+      "name": "Pagina password"
+    },
+    "customers": {
+      "account": "Account cliente",
+      "login": "Accesso cliente",
+      "register": "Registrazione",
+      "order": "Dettaglio ordine",
+      "addresses": "Indirizzi",
+      "reset_password": "Reimposta password",
+      "activate_account": "Attiva account"
+    }
+  },
+  "settings_schema": {
+    "colors": {
+      "name": "Colori",
+      "settings": {
+        "background": {
+          "label": "Sfondo"
+        },
+        "surface": {
+          "label": "Superfici (schede, pannelli)"
+        },
+        "text": {
+          "label": "Testo"
+        },
+        "accent": {
+          "label": "Accento (pulsanti, footer)"
+        },
+        "accent_contrast": {
+          "label": "Testo su accento"
+        },
+        "sale": {
+          "label": "Prezzi scontati"
+        }
+      }
+    },
+    "typography": {
+      "name": "Tipografia",
+      "settings": {
+        "header_font": {
+          "label": "Carattere titoli"
+        },
+        "heading_scale": {
+          "label": "Scala titoli"
+        },
+        "body_font": {
+          "label": "Carattere testo"
+        },
+        "body_scale": {
+          "label": "Scala testo"
+        }
+      }
+    },
+    "layout": {
+      "name": "Layout",
+      "settings": {
+        "page_width": {
+          "label": "Larghezza pagina"
+        },
+        "corner_radius": {
+          "label": "Arrotondamento angoli"
+        },
+        "button_radius": {
+          "label": "Arrotondamento pulsanti"
+        }
+      }
+    },
+    "product_cards": {
+      "name": "Schede prodotto",
+      "settings": {
+        "image_ratio": {
+          "label": "Proporzioni immagine",
+          "options__square": "Quadrata",
+          "options__portrait": "Verticale",
+          "options__landscape": "Orizzontale"
+        },
+        "show_secondary_image": {
+          "label": "Mostra seconda immagine al passaggio del mouse"
+        },
+        "show_vendor": {
+          "label": "Mostra marca"
+        }
+      }
+    },
+    "cart": {
+      "name": "Carrello",
+      "settings": {
+        "show_notes": {
+          "label": "Abilita note ordine"
+        },
+        "free_shipping_threshold": {
+          "label": "Soglia spedizione gratuita",
+          "info": "Importo nella valuta del negozio (es. 50). Lascia 0 per nascondere la barra."
+        }
+      }
+    },
+    "social": {
+      "name": "Social"
+    },
+    "favicon": {
+      "name": "Favicon",
+      "settings": {
+        "image": {
+          "label": "Immagine favicon",
+          "info": "Verrà ridimensionata a 32 × 32 px"
+        }
+      }
+    }
+  }
+}

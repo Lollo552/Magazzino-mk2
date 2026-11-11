@@ -1,0 +1,372 @@
+{
+  "general": {
+    "alignment": "Alignment",
+    "center": "Center",
+    "left": "Left",
+    "right": "Right",
+    "columns_desktop": "Columns on desktop",
+    "heading": "Heading",
+    "text": "Text",
+    "link": "Link",
+    "size": "Size",
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large"
+  },
+  "sections": {
+    "header_group": {
+      "name": "Header group"
+    },
+    "footer_group": {
+      "name": "Footer group"
+    },
+    "announcement": {
+      "name": "Announcement bar",
+      "settings": {
+        "rotate": {
+          "label": "Rotate every"
+        }
+      },
+      "blocks": {
+        "announcement": {
+          "name": "Announcement"
+        }
+      }
+    },
+    "header": {
+      "name": "Header",
+      "settings": {
+        "logo": {
+          "label": "Logo"
+        },
+        "logo_width": {
+          "label": "Logo width"
+        },
+        "menu": {
+          "label": "Menu"
+        },
+        "sticky": {
+          "label": "Sticky header"
+        }
+      }
+    },
+    "footer": {
+      "name": "Footer",
+      "settings": {
+        "show_social": {
+          "label": "Show social icons"
+        },
+        "show_payment_icons": {
+          "label": "Show payment icons"
+        },
+        "show_policies": {
+          "label": "Show policy links"
+        }
+      },
+      "blocks": {
+        "text": {
+          "name": "Text"
+        },
+        "menu": {
+          "name": "Menu"
+        },
+        "newsletter": {
+          "name": "Newsletter"
+        }
+      }
+    },
+    "hero": {
+      "name": "Hero banner",
+      "settings": {
+        "image": {
+          "label": "Image"
+        },
+        "height": {
+          "label": "Height"
+        },
+        "overlay": {
+          "label": "Overlay opacity"
+        }
+      },
+      "blocks": {
+        "eyebrow": {
+          "name": "Eyebrow"
+        },
+        "buttons": {
+          "name": "Buttons",
+          "settings": {
+            "label_1": {
+              "label": "First button label"
+            },
+            "link_1": {
+              "label": "First button link"
+            },
+            "label_2": {
+              "label": "Second button label"
+            },
+            "link_2": {
+              "label": "Second button link"
+            }
+          }
+        }
+      }
+    },
+    "featured_collection": {
+      "name": "Featured collection",
+      "settings": {
+        "collection": {
+          "label": "Collection"
+        },
+        "products_to_show": {
+          "label": "Products to show"
+        },
+        "show_view_all": {
+          "label": "Show \"View all\" link"
+        }
+      }
+    },
+    "collection_list": {
+      "name": "Collection list",
+      "blocks": {
+        "collection": {
+          "name": "Collection"
+        }
+      }
+    },
+    "image_with_text": {
+      "name": "Image with text",
+      "settings": {
+        "image_position": {
+          "label": "Image position"
+        }
+      }
+    },
+    "rich_text": {
+      "name": "Rich text",
+      "blocks": {
+        "button": {
+          "name": "Button"
+        }
+      }
+    },
+    "features": {
+      "name": "Features",
+      "blocks": {
+        "feature": {
+          "name": "Feature",
+          "settings": {
+            "icon": {
+              "label": "Icon"
+            }
+          }
+        }
+      },
+      "icons": {
+        "truck": "Shipping",
+        "shield": "Security",
+        "return": "Returns",
+        "chat": "Support"
+      }
+    },
+    "newsletter": {
+      "name": "Newsletter"
+    },
+    "contact_form": {
+      "name": "Contact form"
+    },
+    "main_product": {
+      "name": "Product information",
+      "blocks": {
+        "vendor": {
+          "name": "Vendor"
+        },
+        "title": {
+          "name": "Title"
+        },
+        "price": {
+          "name": "Price"
+        },
+        "buy_buttons": {
+          "name": "Buy buttons",
+          "settings": {
+            "show_quantity": {
+              "label": "Show quantity selector"
+            },
+            "show_dynamic_checkout": {
+              "label": "Show dynamic checkout buttons"
+            }
+          }
+        },
+        "description": {
+          "name": "Description"
+        },
+        "collapsible": {
+          "name": "Collapsible tab",
+          "settings": {
+            "page": {
+              "label": "Content from page"
+            }
+          }
+        },
+        "share": {
+          "name": "Share"
+        }
+      }
+    },
+    "product_recommendations": {
+      "name": "Product recommendations"
+    },
+    "main_collection": {
+      "name": "Product grid",
+      "settings": {
+        "products_per_page": {
+          "label": "Products per page"
+        },
+        "show_description": {
+          "label": "Show collection description"
+        },
+        "enable_filtering": {
+          "label": "Enable filtering"
+        },
+        "enable_sorting": {
+          "label": "Enable sorting"
+        }
+      }
+    },
+    "main_list_collections": {
+      "name": "Collections list page"
+    },
+    "main_cart": {
+      "name": "Cart"
+    },
+    "main_page": {
+      "name": "Page"
+    },
+    "main_search": {
+      "name": "Search results"
+    },
+    "main_404": {
+      "name": "404 page"
+    },
+    "main_blog": {
+      "name": "Blog posts"
+    },
+    "main_article": {
+      "name": "Blog post",
+      "settings": {
+        "show_author": {
+          "label": "Show author"
+        }
+      }
+    },
+    "main_password": {
+      "name": "Password page"
+    },
+    "customers": {
+      "account": "Customer account",
+      "login": "Customer login",
+      "register": "Customer register",
+      "order": "Customer order",
+      "addresses": "Customer addresses",
+      "reset_password": "Reset password",
+      "activate_account": "Activate account"
+    }
+  },
+  "settings_schema": {
+    "colors": {
+      "name": "Colors",
+      "settings": {
+        "background": {
+          "label": "Background"
+        },
+        "surface": {
+          "label": "Surfaces (cards, panels)"
+        },
+        "text": {
+          "label": "Text"
+        },
+        "accent": {
+          "label": "Accent (buttons, footer)"
+        },
+        "accent_contrast": {
+          "label": "Text on accent"
+        },
+        "sale": {
+          "label": "Sale price"
+        }
+      }
+    },
+    "typography": {
+      "name": "Typography",
+      "settings": {
+        "header_font": {
+          "label": "Heading font"
+        },
+        "heading_scale": {
+          "label": "Heading scale"
+        },
+        "body_font": {
+          "label": "Body font"
+        },
+        "body_scale": {
+          "label": "Body scale"
+        }
+      }
+    },
+    "layout": {
+      "name": "Layout",
+      "settings": {
+        "page_width": {
+          "label": "Page width"
+        },
+        "corner_radius": {
+          "label": "Corner radius"
+        },
+        "button_radius": {
+          "label": "Button radius"
+        }
+      }
+    },
+    "product_cards": {
+      "name": "Product cards",
+      "settings": {
+        "image_ratio": {
+          "label": "Image ratio",
+          "options__square": "Square",
+          "options__portrait": "Portrait",
+          "options__landscape": "Landscape"
+        },
+        "show_secondary_image": {
+          "label": "Show second image on hover"
+        },
+        "show_vendor": {
+          "label": "Show vendor"
+        }
+      }
+    },
+    "cart": {
+      "name": "Cart",
+      "settings": {
+        "show_notes": {
+          "label": "Enable cart notes"
+        },
+        "free_shipping_threshold": {
+          "label": "Free shipping threshold",
+          "info": "Amount in store currency (e.g. 50). Use 0 to hide the bar."
+        }
+      }
+    },
+    "social": {
+      "name": "Social media"
+    },
+    "favicon": {
+      "name": "Favicon",
+      "settings": {
+        "image": {
+          "label": "Favicon image",
+          "info": "Will be scaled down to 32 × 32px"
+        }
+      }
+    }
+  }
+}

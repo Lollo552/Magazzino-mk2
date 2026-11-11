@@ -1,0 +1,93 @@
+{%- liquid
+  assign height_class = 'hero--' | append: section.settings.height
+-%}
+<section class="hero {{ height_class }} hero--align-{{ section.settings.alignment }}" style="--overlay-opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};">
+  <div class="hero__media">
+    {%- if section.settings.image != blank -%}
+      {{ section.settings.image | image_url: width: 3000 | image_tag:
+        loading: 'eager',
+        fetchpriority: 'high',
+        sizes: '100vw',
+        widths: '750, 1100, 1500, 2000, 2500, 3000',
+        class: 'hero__image',
+        alt: section.settings.image.alt | escape
+      }}
+    {%- else -%}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder hero__image' }}
+    {%- endif -%}
+  </div>
+  <div class="hero__content page-width">
+    <div class="hero__box">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'eyebrow' -%}
+            <p class="hero__eyebrow" {{ block.shopify_attributes }}>{{ block.settings.text | escape }}</p>
+          {%- when 'heading' -%}
+            <h2 class="hero__heading h{{ block.settings.size }}" {{ block.shopify_attributes }}>{{ block.settings.heading | escape }}</h2>
+          {%- when 'text' -%}
+            <div class="hero__text rte" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
+          {%- when 'buttons' -%}
+            <div class="hero__buttons" {{ block.shopify_attributes }}>
+              {%- if block.settings.label_1 != blank -%}
+                <a href="{{ block.settings.link_1 | default: routes.all_products_collection_url }}" class="button">{{ block.settings.label_1 | escape }}</a>
+              {%- endif -%}
+              {%- if block.settings.label_2 != blank -%}
+                <a href="{{ block.settings.link_2 | default: routes.collections_url }}" class="button button--secondary">{{ block.settings.label_2 | escape }}</a>
+              {%- endif -%}
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.hero.name",
+  "class": "section-hero",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "t:sections.hero.settings.image.label" },
+    {
+      "type": "select", "id": "height", "label": "t:sections.hero.settings.height.label",
+      "options": [
+        { "value": "small", "label": "t:general.small" },
+        { "value": "medium", "label": "t:general.medium" },
+        { "value": "large", "label": "t:general.large" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select", "id": "alignment", "label": "t:general.alignment",
+      "options": [
+        { "value": "left", "label": "t:general.left" },
+        { "value": "center", "label": "t:general.center" }
+      ],
+      "default": "left"
+    },
+    { "type": "range", "id": "overlay_opacity", "label": "t:sections.hero.settings.overlay.label", "min": 0, "max": 80, "step": 5, "unit": "%", "default": 30 }
+  ],
+  "blocks": [
+    { "type": "eyebrow", "name": "t:sections.hero.blocks.eyebrow.name", "limit": 1, "settings": [ { "type": "text", "id": "text", "label": "t:general.text", "default": "Nuova stagione" } ] },
+    {
+      "type": "heading", "name": "t:general.heading", "limit": 1,
+      "settings": [
+        { "type": "text", "id": "heading", "label": "t:general.heading", "default": "Il meglio del quartiere, a casa tua" },
+        { "type": "select", "id": "size", "label": "t:general.size", "options": [ { "value": "1", "label": "t:general.large" }, { "value": "2", "label": "t:general.medium" } ], "default": "1" }
+      ]
+    },
+    { "type": "text", "name": "t:general.text", "limit": 1, "settings": [ { "type": "richtext", "id": "text", "label": "t:general.text", "default": "<p>Prodotti selezionati, prezzi chiari, consegna rapida.</p>" } ] },
+    {
+      "type": "buttons", "name": "t:sections.hero.blocks.buttons.name", "limit": 1,
+      "settings": [
+        { "type": "text", "id": "label_1", "label": "t:sections.hero.blocks.buttons.settings.label_1.label", "default": "Scopri i prodotti" },
+        { "type": "url", "id": "link_1", "label": "t:sections.hero.blocks.buttons.settings.link_1.label" },
+        { "type": "text", "id": "label_2", "label": "t:sections.hero.blocks.buttons.settings.label_2.label", "default": "Collezioni" },
+        { "type": "url", "id": "link_2", "label": "t:sections.hero.blocks.buttons.settings.link_2.label" }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "t:sections.hero.name", "blocks": [ { "type": "eyebrow" }, { "type": "heading" }, { "type": "text" }, { "type": "buttons" } ] }
+  ]
+}
+{% endschema %}

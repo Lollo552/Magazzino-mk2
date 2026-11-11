@@ -1,0 +1,21 @@
+<section class="section page-width page-width--narrow account-form">
+  <h1 class="page-title">{{ 'customer.activate_account.title' | t }}</h1>
+  <p class="muted">{{ 'customer.activate_account.subtext' | t }}</p>
+  {%- form 'activate_customer_password', class: 'form' -%}
+    {%- if form.errors -%}<div class="form-message form-message--error" role="alert">{{ form.errors | default_errors }}</div>{%- endif -%}
+    <div class="field">
+      <label for="ActivatePassword">{{ 'customer.login_page.password' | t }}</label>
+      <input type="password" id="ActivatePassword" name="customer[password]" autocomplete="new-password" required>
+    </div>
+    <div class="field">
+      <label for="ActivatePasswordConfirm">{{ 'customer.reset_password.password_confirm' | t }}</label>
+      <input type="password" id="ActivatePasswordConfirm" name="customer[password_confirmation]" autocomplete="new-password" required>
+    </div>
+    <button type="submit" class="button">{{ 'customer.activate_account.submit' | t }}</button>
+    <button type="submit" name="decline" class="button button--secondary">{{ 'customer.activate_account.cancel' | t }}</button>
+  {%- endform -%}
+</section>
+
+{% schema %}
+{ "name": "t:sections.customers.activate_account", "settings": [] }
+{% endschema %}

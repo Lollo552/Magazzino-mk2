@@ -1,0 +1,58 @@
+<section class="section page-width">
+  {%- if section.settings.heading != blank -%}
+    <div class="section__header"><h2 class="section__title">{{ section.settings.heading | escape }}</h2></div>
+  {%- endif -%}
+  <ul class="features" role="list">
+    {%- for block in section.blocks -%}
+      <li class="feature" {{ block.shopify_attributes }}>
+        <span class="feature__icon">{% render 'icon', name: block.settings.icon %}</span>
+        <div>
+          <h3 class="feature__title">{{ block.settings.title | escape }}</h3>
+          <p class="feature__text">{{ block.settings.text | escape }}</p>
+        </div>
+      </li>
+    {%- endfor -%}
+  </ul>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.features.name",
+  "class": "section-features",
+  "max_blocks": 4,
+  "settings": [
+    { "type": "text", "id": "heading", "label": "t:general.heading" }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "t:sections.features.blocks.feature.name",
+      "settings": [
+        {
+          "type": "select", "id": "icon", "label": "t:sections.features.blocks.feature.settings.icon.label",
+          "options": [
+            { "value": "truck", "label": "t:sections.features.icons.truck" },
+            { "value": "shield", "label": "t:sections.features.icons.shield" },
+            { "value": "return", "label": "t:sections.features.icons.return" },
+            { "value": "chat", "label": "t:sections.features.icons.chat" }
+          ],
+          "default": "truck"
+        },
+        { "type": "text", "id": "title", "label": "t:general.heading", "default": "Spedizione rapida" },
+        { "type": "text", "id": "text", "label": "t:general.text", "default": "Consegna in 24/48 ore in tutta Italia." }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.features.name",
+      "blocks": [
+        { "type": "feature", "settings": { "icon": "truck", "title": "Spedizione rapida", "text": "Consegna in 24/48 ore in tutta Italia." } },
+        { "type": "feature", "settings": { "icon": "shield", "title": "Pagamenti sicuri", "text": "Carte, PayPal e Shop Pay protetti." } },
+        { "type": "feature", "settings": { "icon": "return", "title": "Reso semplice", "text": "14 giorni per cambiare idea." } },
+        { "type": "feature", "settings": { "icon": "chat", "title": "Assistenza vera", "text": "Rispondiamo noi, non un bot." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

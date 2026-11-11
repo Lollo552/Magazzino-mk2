@@ -1,0 +1,17 @@
+{%- comment -%}
+  Accepts: article {Object}
+{%- endcomment -%}
+<article class="article-card">
+  <a href="{{ article.url }}" class="article-card__media" tabindex="-1" aria-hidden="true">
+    {%- if article.image -%}
+      {{ article.image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '360, 540, 720, 900', sizes: '(min-width: 750px) 33vw, 100vw', alt: article.image.alt | default: article.title }}
+    {%- else -%}
+      {{ 'image' | placeholder_svg_tag: 'placeholder' }}
+    {%- endif -%}
+  </a>
+  <div class="article-card__info">
+    <p class="article-card__meta">{{ article.published_at | time_tag: format: 'date' }}</p>
+    <h3 class="article-card__title"><a href="{{ article.url }}" class="link-cover">{{ article.title }}</a></h3>
+    <p class="article-card__excerpt">{{ article.excerpt_or_content | strip_html | truncatewords: 24 }}</p>
+  </div>
+</article>

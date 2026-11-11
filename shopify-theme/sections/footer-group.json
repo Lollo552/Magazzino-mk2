@@ -1,0 +1,26 @@
+{
+  "type": "footer",
+  "name": "t:sections.footer_group.name",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "text-1": {
+          "type": "text",
+          "settings": { "heading": "Chi siamo", "text": "<p>Una bottega di quartiere, ora anche online. Prodotti scelti con cura e consegnati a casa tua.</p>" }
+        },
+        "menu-1": {
+          "type": "menu",
+          "settings": { "heading": "Link utili", "menu": "footer" }
+        },
+        "newsletter-1": {
+          "type": "newsletter",
+          "settings": { "heading": "Newsletter", "text": "<p>Novità e offerte, al massimo una mail al mese.</p>" }
+        }
+      },
+      "block_order": ["text-1", "menu-1", "newsletter-1"],
+      "settings": { "show_social": true, "show_payment_icons": true }
+    }
+  },
+  "order": ["footer"]
+}

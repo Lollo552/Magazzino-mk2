@@ -1,0 +1,77 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Bottega",
+    "theme_version": "1.0.0",
+    "theme_author": "Lollo552",
+    "theme_documentation_url": "https://github.com/lollo552/magazzino-mk2",
+    "theme_support_url": "https://github.com/lollo552/magazzino-mk2/issues"
+  },
+  {
+    "name": "t:settings_schema.colors.name",
+    "settings": [
+      { "type": "color", "id": "color_background", "label": "t:settings_schema.colors.settings.background.label", "default": "#F7F5F0" },
+      { "type": "color", "id": "color_surface", "label": "t:settings_schema.colors.settings.surface.label", "default": "#FFFFFF" },
+      { "type": "color", "id": "color_text", "label": "t:settings_schema.colors.settings.text.label", "default": "#0B1B33" },
+      { "type": "color", "id": "color_accent", "label": "t:settings_schema.colors.settings.accent.label", "default": "#0B1B33" },
+      { "type": "color", "id": "color_accent_contrast", "label": "t:settings_schema.colors.settings.accent_contrast.label", "default": "#F7F5F0" },
+      { "type": "color", "id": "color_sale", "label": "t:settings_schema.colors.settings.sale.label", "default": "#C2410C" }
+    ]
+  },
+  {
+    "name": "t:settings_schema.typography.name",
+    "settings": [
+      { "type": "font_picker", "id": "type_header_font", "label": "t:settings_schema.typography.settings.header_font.label", "default": "fraunces_n6" },
+      { "type": "range", "id": "heading_scale", "label": "t:settings_schema.typography.settings.heading_scale.label", "min": 80, "max": 150, "step": 5, "unit": "%", "default": 100 },
+      { "type": "font_picker", "id": "type_body_font", "label": "t:settings_schema.typography.settings.body_font.label", "default": "inter_n4" },
+      { "type": "range", "id": "body_scale", "label": "t:settings_schema.typography.settings.body_scale.label", "min": 90, "max": 130, "step": 5, "unit": "%", "default": 100 }
+    ]
+  },
+  {
+    "name": "t:settings_schema.layout.name",
+    "settings": [
+      { "type": "range", "id": "page_width", "label": "t:settings_schema.layout.settings.page_width.label", "min": 1000, "max": 1600, "step": 50, "unit": "px", "default": 1300 },
+      { "type": "range", "id": "corner_radius", "label": "t:settings_schema.layout.settings.corner_radius.label", "min": 0, "max": 24, "step": 2, "unit": "px", "default": 8 },
+      { "type": "range", "id": "button_radius", "label": "t:settings_schema.layout.settings.button_radius.label", "min": 0, "max": 40, "step": 2, "unit": "px", "default": 6 }
+    ]
+  },
+  {
+    "name": "t:settings_schema.product_cards.name",
+    "settings": [
+      {
+        "type": "select",
+        "id": "card_image_ratio",
+        "label": "t:settings_schema.product_cards.settings.image_ratio.label",
+        "options": [
+          { "value": "1 / 1", "label": "t:settings_schema.product_cards.settings.image_ratio.options__square" },
+          { "value": "3 / 4", "label": "t:settings_schema.product_cards.settings.image_ratio.options__portrait" },
+          { "value": "4 / 3", "label": "t:settings_schema.product_cards.settings.image_ratio.options__landscape" }
+        ],
+        "default": "1 / 1"
+      },
+      { "type": "checkbox", "id": "card_show_secondary_image", "label": "t:settings_schema.product_cards.settings.show_secondary_image.label", "default": true },
+      { "type": "checkbox", "id": "card_show_vendor", "label": "t:settings_schema.product_cards.settings.show_vendor.label", "default": false }
+    ]
+  },
+  {
+    "name": "t:settings_schema.cart.name",
+    "settings": [
+      { "type": "checkbox", "id": "cart_show_notes", "label": "t:settings_schema.cart.settings.show_notes.label", "default": true },
+      { "type": "text", "id": "free_shipping_threshold", "label": "t:settings_schema.cart.settings.free_shipping_threshold.label", "info": "t:settings_schema.cart.settings.free_shipping_threshold.info", "default": "50" }
+    ]
+  },
+  {
+    "name": "t:settings_schema.social.name",
+    "settings": [
+      { "type": "text", "id": "social_instagram", "label": "Instagram", "placeholder": "https://instagram.com/..." },
+      { "type": "text", "id": "social_facebook", "label": "Facebook", "placeholder": "https://facebook.com/..." },
+      { "type": "text", "id": "social_tiktok", "label": "TikTok", "placeholder": "https://tiktok.com/@..." }
+    ]
+  },
+  {
+    "name": "t:settings_schema.favicon.name",
+    "settings": [
+      { "type": "image_picker", "id": "favicon", "label": "t:settings_schema.favicon.settings.image.label", "info": "t:settings_schema.favicon.settings.image.info" }
+    ]
+  }
+]

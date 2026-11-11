@@ -1,0 +1,23 @@
+<section class="section page-width" style="--columns-desktop: 3;">
+  <h1 class="page-title">{{ blog.title | escape }}</h1>
+  {%- paginate blog.articles by 9 -%}
+    {%- if blog.articles.size == 0 -%}
+      <div class="empty-state"><p>{{ 'blogs.empty' | t }}</p></div>
+    {%- else -%}
+      <ul class="grid grid--articles" role="list">
+        {%- for article in blog.articles -%}
+          <li class="grid__item">{% render 'article-card', article: article %}</li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+    {% render 'pagination', paginate: paginate %}
+  {%- endpaginate -%}
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.main_blog.name",
+  "class": "section-main-blog",
+  "settings": []
+}
+{% endschema %}
